@@ -2439,53 +2439,72 @@ def cmd_whatsapp(args):
 
     # ── Step 1: Choose mode ──────────────────────────────────────────────
     current_mode = get_env_value("WHATSAPP_MODE") or ""
-    if not current_mode:
-        print()
-        print("How will you use WhatsApp with Rakshastra?")
-        print()
-        print("  1. Separate bot number (recommended)")
-        print("     People message the bot's number directly — cleanest experience.")
-        print(
-            "     Requires a second phone number with WhatsApp installed on a device."
-        )
-        print()
-        print("  2. Personal number (self-chat)")
-        print("     You message yourself to talk to the agent.")
-        print("     Quick to set up, but the UX is less intuitive.")
-        print()
-        try:
-            choice = input("  Choose [1/2]: ").strip()
-        except (EOFError, KeyboardInterrupt):
-            print("\nSetup cancelled.")
-            return
+    default_prompt = " [1/2/3]"
+    if current_mode == "bot":
+        default_prompt = " [1/2/3, default 1]"
+    elif current_mode == "self-chat":
+        default_prompt = " [1/2/3, default 2]"
+    elif current_mode == "personal-public":
+        default_prompt = " [1/2/3, default 3]"
 
-        if choice == "1":
-            save_env_value("WHATSAPP_MODE", "bot")
-            wa_mode = "bot"
-            print("  ✓ Mode: separate bot number")
-            print()
-            print("  ┌─────────────────────────────────────────────────┐")
-            print("  │  Getting a second number for the bot:           │")
-            print("  │                                                 │")
-            print("  │  Easiest: Install WhatsApp Business (free app)  │")
-            print("  │  on your phone with a second number:            │")
-            print("  │    • Dual-SIM: use your 2nd SIM slot            │")
-            print("  │    • Google Voice: free US number (voice.google) │")
-            print("  │    • Prepaid SIM: $3-10, verify once            │")
-            print("  │                                                 │")
-            print("  │  WhatsApp Business runs alongside your personal │")
-            print("  │  WhatsApp — no second phone needed.             │")
-            print("  └─────────────────────────────────────────────────┘")
+    print()
+    print("How will you use WhatsApp with Rakshastra?")
+    print()
+    print("  1. Separate bot number (recommended)")
+    print("     People message the bot's number directly — cleanest experience.")
+    print(
+        "     Requires a second phone number with WhatsApp installed on a device."
+    )
+    print()
+    print("  2. Personal number (self-chat)")
+    print("     You message yourself to talk to the agent.")
+    print("     Quick to set up, but the UX is less intuitive.")
+    print()
+    print("  3. Personal number (public bot)")
+    print("     People message your personal number directly to talk to the bot.")
+    print("     Responses do not use a self-chat prefix in standard DMs.")
+    print()
+    try:
+        choice = input(f"  Choose{default_prompt}: ").strip()
+    except (EOFError, KeyboardInterrupt):
+        print("\nSetup cancelled.")
+        return
+
+    if not choice and current_mode:
+        if current_mode == "bot":
+            choice = "1"
+        elif current_mode == "self-chat":
+            choice = "2"
         else:
-            save_env_value("WHATSAPP_MODE", "self-chat")
-            wa_mode = "self-chat"
-            print("  ✓ Mode: personal number (self-chat)")
+            choice = "3"
+    elif not choice:
+        choice = "1"
+
+    if choice == "1":
+        save_env_value("WHATSAPP_MODE", "bot")
+        wa_mode = "bot"
+        print("  ✓ Mode: separate bot number")
+        print()
+        print("  ┌─────────────────────────────────────────────────┐")
+        print("  │  Getting a second number for the bot:           │")
+        print("  │                                                 │")
+        print("  │  Easiest: Install WhatsApp Business (free app)  │")
+        print("  │  on your phone with a second number:            │")
+        print("  │    • Dual-SIM: use your 2nd SIM slot            │")
+        print("  │    • Google Voice: free US number (voice.google) │")
+        print("  │    • Prepaid SIM: $3-10, verify once            │")
+        print("  │                                                 │")
+        print("  │  WhatsApp Business runs alongside your personal │")
+        print("  │  WhatsApp — no second phone needed.             │")
+        print("  └─────────────────────────────────────────────────┘")
+    elif choice == "2":
+        save_env_value("WHATSAPP_MODE", "self-chat")
+        wa_mode = "self-chat"
+        print("  ✓ Mode: personal number (self-chat)")
     else:
-        wa_mode = current_mode
-        mode_label = (
-            "separate bot number" if wa_mode == "bot" else "personal number (self-chat)"
-        )
-        print(f"\n✓ Mode: {mode_label}")
+        save_env_value("WHATSAPP_MODE", "personal-public")
+        wa_mode = "personal-public"
+        print("  ✓ Mode: personal number (public bot)")
 
     # ── Step 2: Mode is selected, will enable WhatsApp only after pairing ──
     # We intentionally don't write WHATSAPP_ENABLED=true here.  If the user
@@ -2575,7 +2594,8 @@ def cmd_whatsapp(args):
         print("✓ Bridge dependencies already installed")
 
     # ── Step 5: Check for existing session ───────────────────────────────
-    session_dir = get_rakshastra_home() / "whatsapp" / "session"
+    from rakshastra_constants import get_rakshastra_dir
+    session_dir = get_rakshastra_dir("platforms/whatsapp/session", "whatsapp/session")
     session_dir.mkdir(parents=True, exist_ok=True)
 
     if (session_dir / "creds.json").exists():
@@ -2646,6 +2666,13 @@ def cmd_whatsapp(args):
             print("    3. The agent will reply automatically")
             print()
             print("  Tip: Agent responses are prefixed with '⚕ Rakshastra Agent'")
+        elif wa_mode == "personal-public":
+            print("  Next steps:")
+            print("    1. Start the gateway:  rakshastra gateway")
+            print("    2. Have an allowed user (or anyone, if open) message your personal number")
+            print("    3. The agent will reply directly to them")
+            print()
+            print("  Tip: You can also talk to the agent yourself by messaging yourself (Message Yourself).")
         else:
             print("  Next steps:")
             print("    1. Start the gateway:  rakshastra gateway")
