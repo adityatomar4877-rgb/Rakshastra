@@ -77,6 +77,10 @@ _RAKSHASTRA_CORE_TOOLS = [
     "kanban_unblock",
     # Computer use (macOS, gated on cua-driver being installed via check_fn)
     "computer_use",
+    # Cyber intelligence & Drug network detection tools
+    "cyber_collect_osint", "cyber_classify_drug_content", "cyber_detect_automation",
+    "cyber_resolve_entities", "cyber_manage_intelligence_graph",
+    "cyber_calculate_risk_and_prioritize", "cyber_log_audit_compliance",
 ]
 
 # Webhook events may originate from untrusted third-party content (for example,
@@ -250,6 +254,20 @@ TOOLSETS = {
 
     # "honcho" toolset removed — Honcho is now a memory provider plugin.
     # Tools are injected via MemoryManager, not the toolset system.
+
+    "cyber_intelligence": {
+        "description": "OSINT collection, slang analysis, bot detection, entity resolution, and threat prioritization.",
+        "tools": [
+            "cyber_collect_osint",
+            "cyber_classify_drug_content",
+            "cyber_detect_automation",
+            "cyber_resolve_entities",
+            "cyber_manage_intelligence_graph",
+            "cyber_calculate_risk_and_prioritize",
+            "cyber_log_audit_compliance"
+        ],
+        "includes": []
+    },
 
     "security": {
         "description": "Security auditing, vulnerability scanning, risk assessment, and incident reporting tools.",
