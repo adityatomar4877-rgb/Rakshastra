@@ -10,7 +10,7 @@ class AuditComplianceEngine:
     def log_action(self, investigator: str, action: str, target: str, source_data: str) -> Dict[str, Any]:
         """Log a collection/resolution action to the immutable audit trail."""
         log_entry = {
-            "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
             "investigator": investigator,
             "action": action,
             "target": target,
@@ -29,7 +29,7 @@ class AuditComplianceEngine:
                     matched_sources.append({
                         "identifier": ident,
                         "verified_source": f"{source.get('platform', 'web')} message {source.get('message_id', '') or source.get('post_id', '')}",
-                        "timestamp": source.get("timestamp", datetime.datetime.utcnow().isoformat() + "Z")
+                        "timestamp": source.get("timestamp", datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"))
                     })
 
         return {

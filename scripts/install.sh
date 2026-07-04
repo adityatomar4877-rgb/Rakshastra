@@ -212,7 +212,7 @@ print_banner() {
     echo "┌─────────────────────────────────────────────────────────┐"
     echo "│             ⚕ Rakshastra Agent Installer                    │"
     echo "├─────────────────────────────────────────────────────────┤"
-    echo "│  An open source AI agent by Nous Research.              │"
+    echo "│  An autonomous cyber defense agent by Rakshastra.       │"
     echo "└─────────────────────────────────────────────────────────┘"
     echo -e "${NC}"
 }
