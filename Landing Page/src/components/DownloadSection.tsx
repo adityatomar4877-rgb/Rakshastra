@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from "react";
 
 const downloadDetails = {
-  windows: { name: "install.ps1", size: "169 KB", command: "iex (irm https://rakshastra.vercel.app/install.ps1)" },
-  linux: { name: "install.sh", size: "134 KB", command: "curl -sS https://rakshastra.vercel.app/install.sh | bash" },
-  macos: { name: "install.sh", size: "134 KB", command: "curl -sS https://rakshastra.vercel.app/install.sh | bash" },
+  windows: { name: "rakshastra_agent_win_x64.msi", size: "84.6 MB" },
+  linux: { name: "rakshastra_agent_linux_x64.tar.gz", size: "34.2 MB" },
+  macos: { name: "rakshastra_agent_mac_universal.dmg", size: "41.8 MB" },
 };
 
 export default function DownloadSection() {
@@ -148,26 +148,33 @@ export default function DownloadSection() {
               
               {progress >= 100 && (
                 <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem', width: '100%', textAlign: 'left' }}>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--fg-2)', marginBottom: '0.75rem' }}>
-                    Run this command in your {dlInfo.name === "install.ps1" ? "PowerShell" : "Terminal"} to automatically install Rakshastra:
-                  </p>
-                  <div className="cli-box" style={{ margin: '0 0 0.75rem 0', padding: '0.6rem 0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-1)', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <code style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', wordBreak: 'break-all', color: 'var(--fg-1)' }}>{dlInfo.command}</code>
-                    <button 
-                      className="btn-secondary" 
-                      onClick={() => {
-                        navigator.clipboard.writeText(dlInfo.command);
-                        setCmdCopied(true);
-                        setTimeout(() => setCmdCopied(false), 2000);
-                      }} 
-                      style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem', marginLeft: '10px', height: 'fit-content' }}
-                    >
-                      {cmdCopied ? "Copied!" : "Copy"}
-                    </button>
-                  </div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--fg-4)', lineHeight: '1.4' }}>
-                    Alternatively, execute the downloaded script: <code>{dlInfo.name === "install.ps1" ? "powershell -ExecutionPolicy Bypass -File .\\install.ps1" : "bash install.sh"}</code>
-                  </p>
+                  {dlInfo.name.endsWith(".msi") && (
+                    <>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--fg-2)', marginBottom: '0.5rem' }}>
+                        Double-click the downloaded installer to set up the Rakshastra Cyber Defense Agent, or run:
+                      </p>
+                      <pre style={{ background: 'var(--bg-1)', padding: '0.6rem 0.8rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '0.72rem', color: '#ff7d36', fontFamily: 'var(--font-mono)', overflowX: 'auto' }}>
+                        msiexec /i {dlInfo.name} /quiet
+                      </pre>
+                    </>
+                  )}
+                  {dlInfo.name.endsWith(".dmg") && (
+                    <>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--fg-2)', marginBottom: '0.5rem' }}>
+                        Open the downloaded DMG archive and drag the Rakshastra app to your Applications folder.
+                      </p>
+                    </>
+                  )}
+                  {dlInfo.name.endsWith(".tar.gz") && (
+                    <>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--fg-2)', marginBottom: '0.5rem' }}>
+                        Extract the archive and run the setup script:
+                      </p>
+                      <pre style={{ background: 'var(--bg-1)', padding: '0.6rem 0.8rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '0.72rem', color: '#ff7d36', fontFamily: 'var(--font-mono)', overflowX: 'auto' }}>
+                        tar -xzf {dlInfo.name} && cd rakshastra-agent && ./setup.sh
+                      </pre>
+                    </>
+                  )}
                 </div>
               )}
             </div>
