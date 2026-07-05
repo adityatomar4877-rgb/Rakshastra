@@ -268,13 +268,15 @@ const CharacterV1 = ({
   const x = useTransform(
     scrollYProgress,
     [0.05, 0.38],
-    [`${distanceFromCenter * 2.2}vw`, "0vw"]
+    [`${distanceFromCenter * 2.2}vw`, "0vw"],
+    { clamp: true }
   );
-  const opacity = useTransform(scrollYProgress, [0.05, 0.28], [0, 1]);
+  const opacity = useTransform(scrollYProgress, [0.05, 0.28], [0, 1], { clamp: true });
   const rotateY = useTransform(
     scrollYProgress,
     [0.05, 0.38],
-    [distanceFromCenter * 40, 0]
+    [distanceFromCenter * 8, 0],
+    { clamp: true }
   );
 
   return (
@@ -309,15 +311,17 @@ const CharacterV2 = ({
   const x = useTransform(
     scrollYProgress,
     [0.58, 0.88],
-    [`${distanceFromCenter * 4.5}vw`, "0vw"]
+    [`${distanceFromCenter * 4.5}vw`, "0vw"],
+    { clamp: true }
   );
-  const scale = useTransform(scrollYProgress, [0.58, 0.88], [0.6, 1]);
+  const scale = useTransform(scrollYProgress, [0.58, 0.88], [0.6, 1], { clamp: true });
   const y = useTransform(
     scrollYProgress,
     [0.58, 0.88],
-    [Math.abs(distanceFromCenter) * 32, 0]
+    [Math.abs(distanceFromCenter) * 32, 0],
+    { clamp: true }
   );
-  const opacity = useTransform(scrollYProgress, [0.55, 0.65], [0, 1]);
+  const opacity = useTransform(scrollYProgress, [0.55, 0.65], [0, 1], { clamp: true });
 
   return (
     <motion.div
@@ -376,7 +380,7 @@ const StickyPhaseCard = ({
   targetScale: number;
 }) => {
   const container = useRef<HTMLDivElement>(null);
-  const scale = useTransform(progress, range, [1, targetScale]);
+  const scale = useTransform(progress, range, [1, targetScale], { clamp: true });
 
   return (
     <div
@@ -486,11 +490,11 @@ export default function Roadmap() {
 
   // Transforms to fade Stage 1 out and Stage 2 in inside the sticky viewport
   // Extended the hold duration of the text (fully visible until 0.55 progress) so it stays legible for longer
-  const textStageOpacity = useTransform(smoothProgress, [0.0, 0.55, 0.65], [1, 1, 0]);
-  const textStageScale = useTransform(smoothProgress, [0.0, 0.55, 0.65], [1, 1, 0.95]);
+  const textStageOpacity = useTransform(smoothProgress, [0.0, 0.55, 0.65], [1, 1, 0], { clamp: true });
+  const textStageScale = useTransform(smoothProgress, [0.0, 0.55, 0.65], [1, 1, 0.95], { clamp: true });
 
-  const iconStageOpacity = useTransform(smoothProgress, [0.55, 0.65, 0.98], [0, 1, 1]);
-  const iconStageY = useTransform(smoothProgress, [0.55, 0.65], [40, 0]);
+  const iconStageOpacity = useTransform(smoothProgress, [0.55, 0.65, 0.98], [0, 1, 1], { clamp: true });
+  const iconStageY = useTransform(smoothProgress, [0.55, 0.65], [40, 0], { clamp: true });
 
   return (
     <>
