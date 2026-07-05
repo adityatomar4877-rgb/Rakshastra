@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -17,9 +17,14 @@ import {
   CheckCircle2,
   Clock,
   Network,
+  RotateCw,
+  Terminal,
 } from "lucide-react";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { Badge } from "@nous-research/ui/ui/components/badge";
+import { Button } from "@nous-research/ui/ui/components/button";
+import { Spinner } from "@nous-research/ui/ui/components/spinner";
+import { api } from "@/lib/api";
 
 /* ------------------------------------------------------------------ */
 /*  Mock data — mirrors rakshastra_core/models                         */
@@ -539,26 +544,58 @@ function RiskFactorBar({
 export default function MonitorPage() {
   const { setAfterTitle } = usePageHeader();
   const [liveCount, setLiveCount] = useState(0);
+  const [connected, setConnected] = useState<boolean | null>(null);
+  const [checking, setChecking] = useState(true);
+  const [retrying, setRetrying] = useState(false);
 
-  // Simulate a live counter incrementing
+  // Check connectivity to Python backend gateway
+  const checkConnection = useCallback((isRetry = false) => {
+    if (isRetry) setRetrying(true);
+    api.getStatus()
+      .then(() => {
+        setConnected(true);
+        setChecking(false);
+        setRetrying(false);
+      })
+      .catch(() => {
+        setConnected(false);
+        setChecking(false);
+        setRetrying(false);
+      });
+  }, []);
+
   useEffect(() => {
+    checkConnection();
+  }, [checkConnection]);
+
+  // Simulate a live counter incrementing when connected
+  useEffect(() => {
+    if (!connected) return;
     const id = setInterval(() => {
       setLiveCount((c) => c + Math.floor(Math.random() * 3));
     }, 3000);
     return () => clearInterval(id);
-  }, []);
+  }, [connected]);
 
   useLayoutEffect(() => {
-    setAfterTitle(
-      <Badge tone="success" className="text-xs">
-        <span
-          className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current"
-        />
-        Live
-      </Badge>,
-    );
+    if (connected) {
+      setAfterTitle(
+        <Badge tone="success" className="text-xs">
+          <span
+            className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current"
+          />
+          Live
+        </Badge>,
+      );
+    } else {
+      setAfterTitle(
+        <Badge tone="warning" className="text-xs">
+          Offline
+        </Badge>,
+      );
+    }
     return () => setAfterTitle(null);
-  }, [setAfterTitle]);
+  }, [setAfterTitle, connected]);
 
   const totalThreats = MOCK_THREATS.length;
   const critCount = MOCK_THREATS.filter((t) => t.severity === "critical").length;
@@ -573,6 +610,171 @@ export default function MonitorPage() {
 
   const [expandedThreat, setExpandedThreat] = useState<string | null>(null);
 
+  // ── Render Loading State ─────────────────────────────────────────
+  if (checking) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          height: "calc(100vh - 8rem)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <Spinner />
+          <span style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.4)" }}>
+            Verifying Gateway Connection...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Render Connection Error State ─────────────────────────────────
+  if (!connected) {
+    return (
+      <div
+        className="animate-fade-in"
+        style={{
+          display: "flex",
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "2rem",
+          height: "calc(100vh - 8rem)",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "520px",
+            width: "100%",
+            background: "rgba(10, 9, 8, 0.65)",
+            border: "1px solid rgba(255, 125, 54, 0.15)",
+            boxShadow: "0 8px 32px rgba(255, 125, 54, 0.05), inset 0 0 12px rgba(255, 125, 54, 0.03)",
+            borderRadius: "1rem",
+            padding: "2.5rem 2rem",
+            backdropFilter: "blur(20px)",
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "1.5rem",
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              width: "64px",
+              height: "64px",
+              borderRadius: "50%",
+              background: "rgba(255, 125, 54, 0.08)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px solid rgba(255, 125, 54, 0.25)",
+            }}
+          >
+            <Activity
+              className="scanning-dot"
+              style={{
+                width: 28,
+                height: 28,
+                color: "#ff7d36",
+                animation: "scanPulse 1.8s infinite ease-in-out",
+              }}
+            />
+          </div>
+
+          <div>
+            <h2
+              style={{
+                fontSize: "1.25rem",
+                fontWeight: 700,
+                color: "#f6f4f2",
+                marginBottom: "0.5rem",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Rakshastra Gateway Offline
+            </h2>
+            <p
+              style={{
+                fontSize: "0.85rem",
+                color: "rgba(255,255,255,0.45)",
+                lineHeight: 1.5,
+              }}
+            >
+              The Phase 3G Monitoring engine requires an active connection to the Rakshastra API Gateway. Start the local backend server to load real-time analytics.
+            </p>
+          </div>
+
+          {/* Guidelines Block */}
+          <div
+            style={{
+              width: "100%",
+              background: "rgba(0, 0, 0, 0.25)",
+              border: "1px solid rgba(255,255,255,0.04)",
+              borderRadius: "0.5rem",
+              padding: "1rem",
+              textAlign: "left",
+              fontFamily: "var(--theme-font-mono)",
+              fontSize: "0.75rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "rgba(255,255,255,0.3)" }}>
+              <Terminal style={{ width: 14, height: 14 }} />
+              <span>START BACKEND GATEWAY:</span>
+            </div>
+            <code style={{ color: "#ff7d36", display: "block", wordBreak: "break-all" }}>
+              .\.venv\Scripts\python -m rakshastra_cli.main dashboard --no-open
+            </code>
+            <div style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.65rem", marginTop: "4px" }}>
+              * Runs the FastAPI administration server on port 9119
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div style={{ display: "flex", gap: "0.75rem", width: "100%" }}>
+            <Button
+              style={{
+                flex: 1,
+                background: "linear-gradient(135deg, #ff7d36, #ff4b4b)",
+                border: "none",
+                fontWeight: 700,
+                color: "#0a0908",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                boxShadow: "0 4px 15px rgba(255, 125, 54, 0.2)",
+              }}
+              disabled={retrying}
+              onClick={() => checkConnection(true)}
+            >
+              {retrying ? (
+                <>
+                  <Spinner style={{ width: 14, height: 14 }} />
+                  <span>Connecting...</span>
+                </>
+              ) : (
+                <>
+                  <RotateCw style={{ width: 14, height: 14 }} />
+                  <span>Retry Connection</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Render Connected State (Full Dashboard) ──────────────────────
   return (
     <div
       style={{
