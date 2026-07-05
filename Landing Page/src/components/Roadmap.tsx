@@ -458,7 +458,7 @@ const StickyPhasesTimeline = ({ phases }: { phases: any[] }) => {
             i={i}
             {...p}
             progress={scrollYProgress}
-            range={[i * 0.2, 1]}
+            range={[i * 0.2, (i + 1) * 0.2]}
             targetScale={targetScale}
           />
         );

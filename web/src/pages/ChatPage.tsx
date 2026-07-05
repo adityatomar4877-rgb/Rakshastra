@@ -120,10 +120,18 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
   // In gated (OAuth) mode the server intentionally omits the session token —
   // the dashboard API layer authenticates the WS via a single-use ticket,
   // so a missing token there is expected, not an error.
+  // On localhost, allow connection attempts without a token — the local
+  // gateway may accept unauthenticated WS connections.
+  const isLocalhost =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname === "[::1]");
   const [banner, setBanner] = useState<string | null>(() =>
     typeof window !== "undefined" &&
     !window.__RAKSHASTRA_SESSION_TOKEN__ &&
-    !window.__RAKSHASTRA_AUTH_REQUIRED__
+    !window.__RAKSHASTRA_AUTH_REQUIRED__ &&
+    !isLocalhost
       ? "Session token unavailable. Open this page through `rakshastra dashboard`, not directly."
       : null,
   );
@@ -374,7 +382,9 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
     // Banner already initialised above; just bail before wiring xterm/WS.
     // In gated mode the token is absent by design — api.buildWsUrl() mints
     // a WS ticket instead, so don't bail; let the effect reach that path.
-    if (!token && !gated) {
+    // On localhost, always attempt the connection — the local gateway may
+    // serve the PTY without requiring a session token.
+    if (!token && !gated && !isLocalhost) {
       return;
     }
 

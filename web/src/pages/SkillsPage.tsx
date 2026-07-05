@@ -17,6 +17,7 @@ import {
   Blocks,
   Code,
   Zap,
+  KeyRound,
   Filter,
   Download,
   RefreshCw,
@@ -381,6 +382,121 @@ export default function SkillsPage() {
     <div className="flex flex-col gap-4">
       <PluginSlot name="skills:top" />
       <Toast toast={toast} />
+
+      {/* ── Phase 3G — Cybersec Arsenal ─────────────────────────────── */}
+      {view === "skills" && !isSearching && (
+        <div
+          style={{
+            background: "linear-gradient(135deg, rgba(255,75,75,0.04) 0%, rgba(255,125,54,0.04) 50%, rgba(0,255,170,0.03) 100%)",
+            border: "1px solid rgba(255,125,54,0.12)",
+            borderRadius: "0.75rem",
+            padding: "1.5rem",
+            marginBottom: "0.5rem",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                background: "rgba(255,125,54,0.1)",
+                border: "1px solid rgba(255,125,54,0.25)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <ShieldAlert style={{ width: 18, height: 18, color: "#ff7d36" }} />
+            </div>
+            <div>
+              <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-primary, #f6f4f2)", letterSpacing: "-0.01em" }}>
+                Phase 3G — Rakshastra Cybersec Arsenal
+              </div>
+              <div style={{ fontSize: "0.7rem", color: "var(--text-secondary, rgba(255,255,255,0.45))", marginTop: "2px" }}>
+                Core security skills powering autonomous threat detection and incident response
+              </div>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+              gap: "0.6rem",
+            }}
+          >
+            {[
+              { name: "network-scan", desc: "Network reconnaissance & port scanning", icon: Globe, color: "#4d9cff" },
+              { name: "credential-audit", desc: "Credential & secret exposure analysis", icon: KeyRound, color: "#ff4b4b" },
+              { name: "docker-audit", desc: "Container security posture assessment", icon: Blocks, color: "#00d5ff" },
+              { name: "forensics", desc: "Digital forensics & evidence collection", icon: Eye, color: "#a65bf0" },
+              { name: "incident-response", desc: "Incident triage & response procedures", icon: Zap, color: "#ff7d36" },
+              { name: "linux-audit", desc: "Linux system hardening & audit", icon: Shield, color: "#00ffaa" },
+              { name: "windows-audit", desc: "Windows security baseline assessment", icon: ShieldCheck, color: "#4d9cff" },
+              { name: "compliance-check", desc: "Compliance framework validation", icon: CheckCircle2, color: "#ffcc2a" },
+            ].map((skill) => {
+              const SkIcon = skill.icon;
+              // Check if this skill exists in the loaded skills list
+              const realSkill = skills.find((s) => s.name === skill.name);
+              return (
+                <div
+                  key={skill.name}
+                  style={{
+                    background: "rgba(255,255,255,0.02)",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                    borderRadius: "0.5rem",
+                    padding: "0.75rem",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "0.6rem",
+                    transition: "all 0.2s ease",
+                    cursor: "default",
+                  }}
+                  onMouseOver={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = `${skill.color}30`;
+                    (e.currentTarget as HTMLElement).style.background = `${skill.color}08`;
+                  }}
+                  onMouseOut={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.06)";
+                    (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.02)";
+                  }}
+                >
+                  <SkIcon style={{ width: 16, height: 16, color: skill.color, opacity: 0.8, marginTop: 2, flexShrink: 0 }} />
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-primary, rgba(255,255,255,0.85))", fontFamily: "var(--theme-font-mono, monospace)" }}>
+                      {skill.name}
+                    </div>
+                    <div style={{ fontSize: "0.65rem", color: "var(--text-secondary, rgba(255,255,255,0.4))", marginTop: "2px", lineHeight: 1.4 }}>
+                      {skill.desc}
+                    </div>
+                    {realSkill && (
+                      <div style={{ marginTop: "4px" }}>
+                        <span
+                          style={{
+                            display: "inline-block",
+                            padding: "1px 6px",
+                            borderRadius: "3px",
+                            fontSize: "0.55rem",
+                            fontWeight: 600,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
+                            background: realSkill.enabled ? "rgba(0,255,170,0.1)" : "rgba(255,255,255,0.05)",
+                            color: realSkill.enabled ? "#00ffaa" : "rgba(255,255,255,0.3)",
+                          }}
+                        >
+                          {realSkill.enabled ? "Active" : "Installed"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col sm:flex-row sm:items-start gap-4">
         <aside aria-label={t.skills.title} className="sm:w-56 sm:shrink-0">
