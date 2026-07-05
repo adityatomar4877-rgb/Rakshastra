@@ -90,6 +90,7 @@ import PairingPage from "@/pages/PairingPage";
 import ChannelsPage from "@/pages/ChannelsPage";
 import WebhooksPage from "@/pages/WebhooksPage";
 import SystemPage from "@/pages/SystemPage";
+import MonitorPage from "@/pages/MonitorPage";
 import ChatPage from "@/pages/ChatPage";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -132,6 +133,7 @@ const CHAT_NAV_ITEM: NavItem = {
  */
 const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/": RootRedirect,
+  "/monitor": MonitorPage,
   "/sessions": SessionsPage,
   "/files": FilesPage,
   "/analytics": AnalyticsPage,
@@ -161,6 +163,11 @@ function ChatRouteSink() {
 }
 
 const BUILTIN_NAV_REST: NavItem[] = [
+  {
+    path: "/monitor",
+    label: "Monitor",
+    icon: Activity,
+  },
   {
     path: "/sessions",
     labelKey: "sessions",
