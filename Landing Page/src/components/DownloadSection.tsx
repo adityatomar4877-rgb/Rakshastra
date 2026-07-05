@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from "react";
 
 const downloadDetails = {
-  windows: { name: "rakshastra_agent_win_x64.msi", size: "84.6 MB" },
-  linux: { name: "rakshastra_agent_linux_x64.tar.gz", size: "34.2 MB" },
-  macos: { name: "rakshastra_agent_mac_universal.dmg", size: "41.8 MB" },
+  windows: { name: "install.ps1", size: "169 KB", command: "iex (irm https://rakshastra.vercel.app/install.ps1)" },
+  linux: { name: "install.sh", size: "134 KB", command: "curl -sS https://rakshastra.vercel.app/install.sh | bash" },
+  macos: { name: "install.sh", size: "134 KB", command: "curl -sS https://rakshastra.vercel.app/install.sh | bash" },
 };
 
 export default function DownloadSection() {
   const [copied, setCopied] = useState(false);
+  const [cmdCopied, setCmdCopied] = useState(false);
   const [modal, setModal] = useState(false);
   const [progress, setProgress] = useState(0);
   const [dlInfo, setDlInfo] = useState(downloadDetails.windows);
@@ -23,7 +24,7 @@ export default function DownloadSection() {
   }, []);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("curl -sS https://get.rakshastra.ai/install.sh | bash");
+    navigator.clipboard.writeText("curl -sS https://rakshastra.vercel.app/install.sh | bash");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -126,7 +127,7 @@ export default function DownloadSection() {
       </div>
 
       <div className="cli-box anim-fade-up anim-d3">
-        <code>curl -sS https://get.rakshastra.ai/install.sh | bash</code>
+        <code>curl -sS https://rakshastra.vercel.app/install.sh | bash</code>
         <button className="btn-secondary" onClick={handleCopy} style={{ whiteSpace: 'nowrap' }}>
           {copied ? "Copied!" : "Copy"}
         </button>
@@ -134,16 +135,41 @@ export default function DownloadSection() {
 
       {modal && (
         <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && closeModal()}>
-          <div className="modal" style={{ position: 'relative' }}>
+          <div className="modal" style={{ position: 'relative', maxWidth: '500px', width: '90%' }}>
             <button className="modal-close" onClick={closeModal}>&times;</button>
-            <h3>Downloading Agent</h3>
-            <div className="progress-track">
+            <h3>{progress >= 100 ? "Installation Command" : "Downloading Installer"}</h3>
+            <div className="progress-track" style={{ marginBottom: '1.25rem' }}>
               <div className="progress-fill" style={{ width: `${progress}%` }} />
             </div>
-            <div className="modal-meta">
+            <div className="modal-meta" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div>File: <span>{dlInfo.name}</span></div>
               <div>Size: <span>{dlInfo.size}</span></div>
-              <div>Status: <span style={{ color: progress >= 100 ? "var(--accent-4)" : "var(--accent-2)" }}>{status}</span></div>
+              <div>Status: <span style={{ color: progress >= 100 ? "var(--green)" : "var(--accent)" }}>{status}</span></div>
+              
+              {progress >= 100 && (
+                <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem', width: '100%', textAlign: 'left' }}>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--fg-2)', marginBottom: '0.75rem' }}>
+                    Run this command in your {dlInfo.name === "install.ps1" ? "PowerShell" : "Terminal"} to automatically install Rakshastra:
+                  </p>
+                  <div className="cli-box" style={{ margin: '0 0 0.75rem 0', padding: '0.6rem 0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-1)', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <code style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', wordBreak: 'break-all', color: 'var(--fg-1)' }}>{dlInfo.command}</code>
+                    <button 
+                      className="btn-secondary" 
+                      onClick={() => {
+                        navigator.clipboard.writeText(dlInfo.command);
+                        setCmdCopied(true);
+                        setTimeout(() => setCmdCopied(false), 2000);
+                      }} 
+                      style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem', marginLeft: '10px', height: 'fit-content' }}
+                    >
+                      {cmdCopied ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--fg-4)', lineHeight: '1.4' }}>
+                    Alternatively, execute the downloaded script: <code>{dlInfo.name === "install.ps1" ? "powershell -ExecutionPolicy Bypass -File .\\install.ps1" : "bash install.sh"}</code>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
