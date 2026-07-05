@@ -14,8 +14,8 @@ export default function Footer() {
         <div className="footer-links">
           <a href="#" className="footer-link">GitHub</a>
           <a href="#" className="footer-link">Docs</a>
-          <a href="#" className="footer-link">Discord</a>
-          <a href="#" className="footer-link">Twitter</a>
+          <a href="/privacy" className="footer-link">Privacy Policy</a>
+          <a href="/license" className="footer-link">License</a>
         </div>
 
         <span className="footer-copy">

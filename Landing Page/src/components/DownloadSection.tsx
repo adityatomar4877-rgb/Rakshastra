@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 
 const downloadDetails = {
-  windows: { name: "rakshastra_agent_win_x64.msi", size: "84.6 MB" },
+  windows: { name: "rakshastra_agent_win_x64.zip", size: "84.6 MB" },
   linux: { name: "rakshastra_agent_linux_x64.tar.gz", size: "34.2 MB" },
   macos: { name: "rakshastra_agent_mac_universal.dmg", size: "41.8 MB" },
 };
@@ -36,28 +36,36 @@ export default function DownloadSection() {
     setStatus("Connecting...");
     setModal(true);
 
-    const inc = 50 / 2000 * 100;
+    const duration = 2000;
+    const intervalTime = 50;
+    const totalSteps = duration / intervalTime;
+    const inc = 100 / totalSteps;
+    let currentProgress = 0;
+
     const id = setInterval(() => {
-      setProgress((p) => {
-        const next = p + inc;
-        if (next >= 100) {
-          clearInterval(id);
-          setStatus("Download complete");
-          // trigger real download
-          const a = document.createElement("a");
-          a.href = `/${info.name}`;
-          a.download = info.name;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          return 100;
+      currentProgress += inc;
+      if (currentProgress >= 100) {
+        clearInterval(id);
+        setProgress(100);
+        setStatus("Download complete");
+        // trigger real download once
+        const a = document.createElement("a");
+        a.href = `/${info.name}`;
+        a.download = info.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } else {
+        setProgress(currentProgress);
+        if (currentProgress > 5 && currentProgress < 30) {
+          setStatus("Downloading agent core...");
+        } else if (currentProgress >= 30 && currentProgress < 80) {
+          setStatus(`Downloading (${Math.floor(currentProgress)}%)...`);
+        } else if (currentProgress >= 80) {
+          setStatus("Verifying signatures...");
         }
-        if (next > 5 && next < 30) setStatus("Downloading agent core...");
-        else if (next >= 30 && next < 80) setStatus(`Downloading (${Math.floor(next)}%)...`);
-        else if (next >= 80) setStatus("Verifying signatures...");
-        return next;
-      });
-    }, 50);
+      }
+    }, intervalTime);
 
     (window as any).__dlInterval = id;
   };
@@ -148,13 +156,13 @@ export default function DownloadSection() {
               
               {progress >= 100 && (
                 <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem', width: '100%', textAlign: 'left' }}>
-                  {dlInfo.name.endsWith(".msi") && (
+                  {dlInfo.name.endsWith(".zip") && (
                     <>
                       <p style={{ fontSize: '0.8rem', color: 'var(--fg-2)', marginBottom: '0.5rem' }}>
-                        Double-click the downloaded installer to set up the Rakshastra Cyber Defense Agent, or run:
+                        Extract the downloaded ZIP archive and double-click the installer executable inside to set up the Rakshastra Cyber Defense Agent, or run:
                       </p>
                       <pre style={{ background: 'var(--bg-1)', padding: '0.6rem 0.8rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '0.72rem', color: '#ff7d36', fontFamily: 'var(--font-mono)', overflowX: 'auto' }}>
-                        msiexec /i {dlInfo.name} /quiet
+                        Expand-Archive {dlInfo.name} -DestinationPath .\rakshastra-setup
                       </pre>
                     </>
                   )}
