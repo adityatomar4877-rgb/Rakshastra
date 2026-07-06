@@ -264,6 +264,7 @@ async function startSocket() {
     if (qr) {
       console.log('\n📱 Scan this QR code with WhatsApp on your phone:\n');
       qrcode.generate(qr, { small: true });
+      console.log('QR_DATA:' + qr);
       console.log('\nWaiting for scan...\n');
     }
 
