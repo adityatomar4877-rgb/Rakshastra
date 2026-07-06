@@ -6804,6 +6804,251 @@ async def scan_narcotics_target(req: NarcoticsScanRequest):
 
 
 
+@app.get("/cli-console", response_class=HTMLResponse)
+async def serve_cli_console(request: Request):
+    """Serve a secure, interactive CLI command runner page restricted to localhost."""
+    _enforce_localhost(request)
+    html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rakshastra CLI Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Fira Code', monospace;
+        }
+    </style>
+</head>
+<body class="bg-[#080808] text-[#e0e0e0] min-h-screen p-6 flex flex-col gap-6 relative overflow-hidden">
+    <div class="absolute inset-0 bg-[linear-gradient(rgba(18,18,18,0.85)_2px,transparent_2px),linear-gradient(90deg,rgba(18,18,18,0.85)_2px,transparent_2px)] bg-[size:30px_30px] opacity-25 pointer-events-none"></div>
+    <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-[#E56A21]/5 rounded-full blur-[150px] pointer-events-none"></div>
+    
+    <div class="z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#111] border border-white/5 p-5 rounded-xl">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span class="text-[10px] tracking-widest text-[#E56A21] font-bold uppercase">LOCAL INTERACTIVE SHELL</span>
+            </div>
+            <h1 class="text-white text-xl font-bold mt-1 tracking-tight">RAKSHASTRA AGENT CLI CONSOLE</h1>
+            <p class="text-[10px] text-gray-500 mt-0.5 uppercase">SECURED PROTOCOL • LOCALHOST ONLY ACCESS</p>
+        </div>
+        <div class="text-right text-[10px] text-gray-400 font-bold bg-[#1A1A1A] px-3 py-1.5 border border-white/5 rounded-lg flex items-center gap-2">
+            <span class="text-emerald-400">● GATEWAY ONLINE</span>
+            <span class="text-gray-600">|</span>
+            <span>PORT 9119</span>
+        </div>
+    </div>
+
+    <div class="z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 min-h-0">
+        <div class="lg:col-span-1 bg-[#111] border border-white/5 rounded-xl p-5 flex flex-col gap-4">
+            <h2 class="text-white text-xs font-bold uppercase tracking-wider border-b border-white/5 pb-2">PRESET CLI ACTIONS</h2>
+            
+            <div class="flex flex-col gap-2">
+                <button onclick="runCommand('poetry run rakshastra --help')" class="w-full text-left px-3 py-2 bg-[#161616] hover:bg-[#E56A21]/20 border border-white/5 hover:border-[#E56A21]/40 rounded-lg text-xs font-medium text-gray-300 hover:text-white transition-all duration-150">
+                    ℹ️ Show CLI Help
+                </button>
+                <button onclick="runCommand('poetry run rakshastra status')" class="w-full text-left px-3 py-2 bg-[#161616] hover:bg-[#E56A21]/20 border border-white/5 hover:border-[#E56A21]/40 rounded-lg text-xs font-medium text-gray-300 hover:text-white transition-all duration-150">
+                    📊 Gateway Status Check
+                </button>
+                <button onclick="runCommand('poetry run rakshastra tools')" class="w-full text-left px-3 py-2 bg-[#161616] hover:bg-[#E56A21]/20 border border-white/5 hover:border-[#E56A21]/40 rounded-lg text-xs font-medium text-gray-300 hover:text-white transition-all duration-150">
+                    🔧 Configure Tools List
+                </button>
+                <button onclick="runCommand('poetry run rakshastra sessions')" class="w-full text-left px-3 py-2 bg-[#161616] hover:bg-[#E56A21]/20 border border-white/5 hover:border-[#E56A21]/40 rounded-lg text-xs font-medium text-gray-300 hover:text-white transition-all duration-150">
+                    💬 List Active Sessions
+                </button>
+                <button onclick="runCommand('poetry run python scripts/generate_investigation_dataset.py')" class="w-full text-left px-3 py-2 bg-[#161616] hover:bg-[#E56A21]/20 border border-white/5 hover:border-[#E56A21]/40 rounded-lg text-xs font-medium text-gray-300 hover:text-white transition-all duration-150">
+                    🗄️ Seed Narcotics Dataset
+                </button>
+            </div>
+
+            <div class="mt-4 border-t border-white/5 pt-4">
+                <h3 class="text-white text-xs font-bold uppercase tracking-wider mb-2">TARGET SCAN TEMPLATES</h3>
+                <div class="flex flex-col gap-2">
+                    <button onclick="runScan('@delhi_stash_supply', 'telegram')" class="w-full text-left px-3 py-2 bg-[#161616] hover:bg-emerald-500/20 border border-white/5 hover:border-emerald-500/40 rounded-lg text-[10px] text-gray-400 hover:text-white transition-all duration-150">
+                        🔵 Telegram: @delhi_stash_supply
+                    </button>
+                    <button onclick="runScan('https://t.me/thecustomrom', 'telegram')" class="w-full text-left px-3 py-2 bg-[#161616] hover:bg-emerald-500/20 border border-white/5 hover:border-emerald-500/40 rounded-lg text-[10px] text-gray-400 hover:text-white transition-all duration-150">
+                        🟢 Telegram: @thecustomrom
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex-1"></div>
+            <div class="text-[9px] text-gray-500 uppercase leading-relaxed border-t border-white/5 pt-3">
+                <p>Security Level: Restricted</p>
+                <p>Process Binding: 127.0.0.1</p>
+            </div>
+        </div>
+
+        <div class="lg:col-span-3 flex flex-col gap-4 bg-[#111] border border-white/5 rounded-xl p-5 min-h-[500px]">
+            <div class="flex gap-2">
+                <div class="flex-1 relative">
+                    <span class="absolute left-3 top-2.5 text-[#E56A21] font-bold text-xs">$</span>
+                    <input type="text" id="cmdInput" placeholder="Enter custom command (e.g. poetry run rakshastra status)..." class="w-full bg-[#0C0C0C] border border-white/5 focus:border-[#E56A21] rounded-lg pl-8 pr-3 py-2 text-xs text-[#D8F3DC] font-mono focus:outline-none" onkeydown="if(event.key === 'Enter') executeCustomCommand()">
+                </div>
+                <button onclick="executeCustomCommand()" class="px-4 py-2 bg-[#E56A21] hover:bg-[#E56A21]/80 text-white font-bold text-xs rounded-lg uppercase tracking-wider transition-colors duration-150">
+                    Execute
+                </button>
+                <button onclick="clearConsole()" class="px-3 py-2 bg-[#1C1C1C] hover:bg-white/10 border border-white/5 text-gray-400 hover:text-white text-xs rounded-lg uppercase transition-colors duration-150">
+                    Clear
+                </button>
+            </div>
+
+            <div class="flex-1 bg-[#060606] border border-white/5 rounded-lg p-4 font-mono text-xs overflow-y-auto max-h-[550px] relative" id="consoleOutput">
+                <div class="text-gray-500 uppercase tracking-widest text-[9px] mb-2">[CONSOLE INITIALIZED SUCCESSFULLY]</div>
+                <div class="text-emerald-400">Welcome to Rakshastra Interactive CLI Terminal. Select a preset command above or type your own.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let eventSource = null;
+
+        function clearConsole() {
+            document.getElementById('consoleOutput').innerHTML = '<div class="text-gray-500 uppercase tracking-widest text-[9px] mb-2">[CONSOLE CLEARED]</div>';
+        }
+
+        function runCommand(cmd) {
+            document.getElementById('cmdInput').value = cmd;
+            executeCustomCommand();
+        }
+
+        function runScan(target, source) {
+            const cmd = `poetry run python skills/security/narcotics-intelligence/scripts/cyber_collect_osint.py --target ${target} --source-type ${source}`;
+            document.getElementById('cmdInput').value = cmd;
+            executeCustomCommand();
+        }
+
+        function executeCustomCommand() {
+            const input = document.getElementById('cmdInput');
+            const cmd = input.value.trim();
+            if (!cmd) return;
+
+            const consoleDiv = document.getElementById('consoleOutput');
+            consoleDiv.innerHTML += `<div class="text-[#E56A21] font-bold mt-4">$ ${cmd}</div>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            const url = `/api/cli/run?command=` + encodeURIComponent(cmd);
+            eventSource = new EventSource(url);
+
+            eventSource.onmessage = function(event) {
+                if (event.data.includes("[PROCESS_FINISHED]")) {
+                    eventSource.close();
+                    return;
+                }
+                
+                let line = event.data;
+                let lineClass = "text-gray-300";
+                
+                if (line.includes("[STDERR]") || line.includes("failed") || line.includes("Error")) {
+                    lineClass = "text-red-400 font-bold";
+                } else if (line.includes("successfully") || line.includes("finished with exit code")) {
+                    lineClass = "text-emerald-400 font-bold";
+                }
+                
+                consoleDiv.innerHTML += `<div class="${lineClass} whitespace-pre-wrap leading-relaxed">${escapeHtml(line)}</div>`;
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            };
+
+            eventSource.onerror = function() {
+                consoleDiv.innerHTML += `<div class="text-red-500 font-bold">[Process disconnected]</div>`;
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                eventSource.close();
+            };
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    </script>
+</body>
+</html>"""
+    return HTMLResponse(content=html_content, status_code=200)
+
+
+@app.get("/api/cli/run")
+async def run_cli_command(command: str, request: Request):
+    """Execute a CLI shell command and stream stdout/stderr in real-time via Server-Sent Events (SSE)."""
+    _enforce_localhost(request)
+    
+    # Simple shell injection sanity safeguards
+    cleaned_cmd = command.strip()
+    if any(forbidden in cleaned_cmd.lower() for forbidden in (";", "&&", "||", "&", "|", "..")):
+        async def err_gen():
+            yield "data: [ERROR] Chaining characters or relative directories are forbidden for security.\n\n"
+        return StreamingResponse(err_gen(), media_type="text/event-stream")
+        
+    async def sse_generator():
+        import asyncio
+        import os
+        
+        yield f"data: [SYSTEM] Spawning subprocess for: {cleaned_cmd}\n\n"
+        
+        try:
+            # Run the command asynchronously
+            process = await asyncio.create_subprocess_shell(
+                cleaned_cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                creationflags=0x08000000 if os.name == "nt" else 0  # CREATE_NO_WINDOW on Windows
+            )
+            
+            queue = asyncio.Queue()
+            
+            async def reader(stream, label):
+                while True:
+                    line = await stream.readline()
+                    if not line:
+                        break
+                    await queue.put((label, line.decode("utf-8", errors="replace").rstrip("\r\n")))
+                    
+            # Spawn background readers
+            stdout_task = asyncio.create_task(reader(process.stdout, "stdout"))
+            stderr_task = asyncio.create_task(reader(process.stderr, "stderr"))
+            
+            # Yield lines as they arrive in the queue
+            while not (stdout_task.done() and stderr_task.done() and queue.empty()):
+                try:
+                    label, line = await asyncio.wait_for(queue.get(), timeout=0.1)
+                    if label == "stderr":
+                        yield f"data: [STDERR] {line}\n\n"
+                    else:
+                        yield f"data: {line}\n\n"
+                    queue.task_done()
+                except asyncio.TimeoutError:
+                    if process.returncode is not None and queue.empty():
+                        break
+                        
+            rc = await process.wait()
+            yield f"data: [SYSTEM] Process finished with exit code {rc}\n\n"
+            yield f"data: [PROCESS_FINISHED]\n\n"
+        except Exception as e:
+            yield f"data: [ERROR] Execution failed: {e}\n\n"
+            yield f"data: [PROCESS_FINISHED]\n\n"
+            
+    return StreamingResponse(sse_generator(), media_type="text/event-stream")
+
+
+def _enforce_localhost(request: Request):
+    client_host = request.client.host if request.client else "127.0.0.1"
+    if client_host not in ("127.0.0.1", "::1", "localhost"):
+        raise HTTPException(status_code=403, detail="Forbidden: Access is restricted to localhost only.")
+
+
 @app.get("/api/messaging/platforms")
 async def get_messaging_platforms(profile: Optional[str] = None):
     # Profile-scoped so the dashboard's global profile switcher shows the
