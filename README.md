@@ -103,13 +103,13 @@ graph TD
 
 ## Folder Structure
 
-- [`agent/`](file:///c:/PROJECT/agent): Core agent logic, memory consolidation, and reasoning.
-- [`tools/`](file:///c:/PROJECT/tools): Tool wrappers for terminal backends (Docker, local, SSH), browser automation, and web searching.
-- [`skills/`](file:///c:/PROJECT/skills): Predefined security skills, checklists, and compliance templates.
-- [`optional-skills/`](file:///c:/PROJECT/optional-skills): Specialized but inactive skills for custom security scenarios.
-- [`gateway/`](file:///c:/PROJECT/gateway): Platform integrations (Slack, Telegram, Discord, Signal) for notification and remote control.
-- [`cli.py`](file:///c:/PROJECT/cli.py): Interactive command-line client.
-- [`Dockerfile`](file:///c:/PROJECT/Dockerfile), [`docker-compose.yml`](file:///c:/PROJECT/docker-compose.yml): Deployment configurations.
+- [`agent/`](agent): Core agent logic, memory consolidation, and reasoning.
+- [`tools/`](tools): Tool wrappers for terminal backends (Docker, local, SSH), browser automation, and web searching.
+- [`skills/`](skills): Predefined security skills, checklists, and compliance templates.
+- [`optional-skills/`](optional-skills): Specialized but inactive skills for custom security scenarios.
+- [`gateway/`](gateway): Platform integrations (Slack, Telegram, Discord, Signal) for notification and remote control.
+- [`cli.py`](cli.py): Interactive command-line client.
+- [`Dockerfile`](Dockerfile), [`docker-compose.yml`](docker-compose.yml): Deployment configurations.
 
 ---
 
@@ -131,4 +131,4 @@ scripts/run_tests.sh
 
 ### Contributing
 
-See [AGENTS.md](file:///c:/PROJECT/AGENTS.md) for contribution guidelines, core invariants, and design principles.
+See [AGENTS.md](AGENTS.md) for contribution guidelines, core invariants, and design principles.

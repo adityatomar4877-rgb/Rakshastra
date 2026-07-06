@@ -1,7 +1,7 @@
 - [x] Transition WhatsApp to Bot Mode & Fix Windows taskkill timeouts
   - [x] Terminate any running/stale WhatsApp gateway & bridge processes
   - [x] Edit `C:\Users\intel\AppData\Local\rakshastra\.env` to set `WHATSAPP_MODE=bot`
-  - [x] Edit `c:\PROJECT\plugins\platforms\whatsapp\adapter.py` to always pass `/F` to `taskkill` on Windows
+  - [x] Edit `../plugins/platforms/whatsapp/adapter.py` to always pass `/F` to `taskkill` on Windows
   - [x] Verify that the gateway starts successfully without timing out
   - [x] Confirm friend number can interact with the WhatsApp bot JID
 - [x] Verify dependencies and remove `apps/desktop` and `apps/bootstrap-installer`

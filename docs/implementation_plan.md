@@ -14,7 +14,7 @@ This plan covers transitioning the WhatsApp bridge to **bot** mode (allowing fri
 
 ### WhatsApp Platform Adapter
 
-#### [MODIFY] [adapter.py](file:///c:/PROJECT/plugins/platforms/whatsapp/adapter.py)
+#### [MODIFY] [adapter.py](../plugins/platforms/whatsapp/adapter.py)
 * Update `_terminate_bridge_process()` to always include the `/F` (force) flag when calling `taskkill` on Windows.
 * This ensures that when the gateway stops, restarts, or reconnects the WhatsApp bridge, the headless Node.js process is immediately and reliably terminated rather than failing and leaving stale processes holding port 3000.
 

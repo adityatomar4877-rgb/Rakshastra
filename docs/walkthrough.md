@@ -9,16 +9,16 @@ We have successfully transitioned the WhatsApp gateway integration to **bot** mo
 - This ensures that messages sent by other allowed contacts (like friend `919755745209`) are processed and replied to, rather than being ignored under self-chat constraints.
 
 ### 2. Aligned Session Directory Paths
-- Fixed a mismatch where the setup wizard [c:\PROJECT\rakshastra_cli\main.py](file:///c:/PROJECT/rakshastra_cli/main.py) hardcoded the session path to `whatsapp/session`, while the platform adapter resolved it to `platforms/whatsapp/session` dynamically.
+- Fixed a mismatch where the setup wizard [../rakshastra_cli/main.py](../rakshastra_cli/main.py) hardcoded the session path to `whatsapp/session`, while the platform adapter resolved it to `platforms/whatsapp/session` dynamically.
 - Aligned `main.py` to use `get_rakshastra_dir("platforms/whatsapp/session", "whatsapp/session")` so that credentials saved by the wizard are automatically found by the adapter.
 - Copied existing credentials to ensure that both paths contain active session details.
 
 ### 3. Enabled Wizard Mode Prompt Reconfiguration
-- Modified the setup wizard [c:\PROJECT\rakshastra_cli\main.py](file:///c:/PROJECT/rakshastra_cli/main.py) to always prompt the user to choose their mode (Separate bot number vs Personal number) even if it was previously configured.
+- Modified the setup wizard [../rakshastra_cli/main.py](../rakshastra_cli/main.py) to always prompt the user to choose their mode (Separate bot number vs Personal number) even if it was previously configured.
 - Shows the current setting as default if they press Enter, making reconfiguration easy.
 
 ### 4. Resolved Windows Taskkill Process Termination Timeout
-- Modified `_terminate_bridge_process()` in [c:\PROJECT\plugins\platforms\whatsapp\adapter.py](file:///c:/PROJECT/plugins/platforms/whatsapp/adapter.py) to always use the `/F` (force) flag when calling `taskkill` on Windows.
+- Modified `_terminate_bridge_process()` in [../plugins/platforms/whatsapp/adapter.py](../plugins/platforms/whatsapp/adapter.py) to always use the `/F` (force) flag when calling `taskkill` on Windows.
 - This ensures that when the gateway stops, restarts, or reconnects the WhatsApp bridge, stale headless processes are immediately cleaned up and port 3000 is freed.
 
 ---
