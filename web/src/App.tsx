@@ -81,23 +81,24 @@ import type { SystemAction } from "@/contexts/system-actions-context";
 import ConfigPage from "@/pages/ConfigPage";
 import DocsPage from "@/pages/DocsPage";
 import EnvPage from "@/pages/EnvPage";
-import FilesPage from "@/pages/FilesPage";
-import SessionsPage from "@/pages/SessionsPage";
-import LogsPage from "@/pages/LogsPage";
+import InvestigationsPage from "@/pages/InvestigationsPage";
+import LiveMonitoringPage from "@/pages/LiveMonitoringPage";
+import ReportsPage from "@/pages/ReportsPage";
 import AnalyticsPage from "@/pages/AnalyticsPage";
 import ModelsPage from "@/pages/ModelsPage";
-import CronPage from "@/pages/CronPage";
+import TimelinePage from "@/pages/TimelinePage";
 import ProfilesPage from "@/pages/ProfilesPage";
 import ProfileBuilderPage from "@/pages/ProfileBuilderPage";
 import SkillsPage from "@/pages/SkillsPage";
 import PluginsPage from "@/pages/PluginsPage";
-import McpPage from "@/pages/McpPage";
-import PairingPage from "@/pages/PairingPage";
+import GraphIntelligencePage from "@/pages/GraphIntelligencePage";
+import EntitySearchPage from "@/pages/EntitySearchPage";
 import ChannelsPage from "@/pages/ChannelsPage";
-import WebhooksPage from "@/pages/WebhooksPage";
+import AlertsPage from "@/pages/AlertsPage";
 import SystemPage from "@/pages/SystemPage";
 import MonitorPage from "@/pages/MonitorPage";
 import ChatPage from "@/pages/ChatPage";
+import DrugIntelligencePage from "@/pages/DrugIntelligencePage";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useI18n } from "@/i18n";
@@ -140,18 +141,19 @@ const CHAT_NAV_ITEM: NavItem = {
 const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/": RootRedirect,
   "/monitor": MonitorPage,
-  "/sessions": SessionsPage,
-  "/files": FilesPage,
+  "/drug-intelligence": DrugIntelligencePage,
+  "/sessions": LiveMonitoringPage,
+  "/files": InvestigationsPage,
   "/analytics": AnalyticsPage,
   "/models": ModelsPage,
-  "/logs": LogsPage,
-  "/cron": CronPage,
+  "/logs": ReportsPage,
+  "/cron": TimelinePage,
   "/skills": SkillsPage,
   "/plugins": PluginsPage,
-  "/mcp": McpPage,
-  "/pairing": PairingPage,
+  "/mcp": GraphIntelligencePage,
+  "/pairing": EntitySearchPage,
   "/channels": ChannelsPage,
-  "/webhooks": WebhooksPage,
+  "/webhooks": AlertsPage,
   "/system": SystemPage,
   "/profiles": ProfilesPage,
   "/profiles/new": ProfileBuilderPage,
@@ -173,6 +175,11 @@ const BUILTIN_NAV_REST: NavItem[] = [
     path: "/monitor",
     label: "Monitor",
     icon: Activity,
+  },
+  {
+    path: "/drug-intelligence",
+    label: "Drug Intelligence",
+    icon: Shield,
   },
   {
     path: "/sessions",
