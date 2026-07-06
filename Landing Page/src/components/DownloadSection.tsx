@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 
 const downloadDetails = {
-  windows: { name: "rakshastra_agent_win_x64.msi", size: "84.6 MB" },
+  windows: { name: "rakshastra_agent_win_x64.zip", size: "48 KB" },
   linux: { name: "rakshastra_agent_linux_x64.tar.gz", size: "34.2 MB" },
   macos: { name: "rakshastra_agent_mac_universal.dmg", size: "41.8 MB" },
 };

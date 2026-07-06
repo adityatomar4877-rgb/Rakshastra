@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { motion, useScroll, useTransform, useSpring, MotionValue } from "framer-motion";
 
 const cn = (...classes: any[]) => classes.filter(Boolean).join(" ");
@@ -89,32 +89,67 @@ const phases = [
     phase: "Phase 1",
     cls: "p1",
     title: "Setup & Cloud Infrastructure",
-    desc: "Fork Hermes codebase. Configure GCP — Cloud Run, Firestore, Gemini API, and Neo4j Graph DB.",
+    tagline: "Laying the secure foundation for the OSINT ecosystem",
+    desc: "Configure security-hardened environments and provision database services with unified identity access management.",
+    bullets: [
+      "Fork the core Hermes codebase and implement continuous deployment via Cloud Build pipelines.",
+      "Provision serverless GCP Cloud Run containers running with isolated IAM profiles.",
+      "Initialize high-performance Neo4j Graph Database and resilient serverless Firestore instances.",
+      "Configure encrypted credential vaults and establish connection tunnels for the Gemini API."
+    ]
   },
   {
     phase: "Phase 2",
     cls: "p2",
     title: "Data Ingestion Pipelines",
-    desc: "Connect Telegram channels, Instagram scrapers. Build ETL pipelines into the Neo4j threat graph.",
+    tagline: "Connecting live endpoints to ingest high-fidelity intelligence",
+    desc: "Establish secure data listeners and scrapers to channel OSINT content directly into automated processing systems.",
+    bullets: [
+      "Deploy custom Telegram API listeners subscribing to public and private investigation streams.",
+      "Configure headless Instagram scrapers running through rotating proxy networks to prevent rate limiting.",
+      "Build real-time ETL pipelines utilizing structured regex parsing to sanitize raw text blocks.",
+      "Map cross-platform identities into the Neo4j threat graph, establishing tracking vectors."
+    ]
   },
   {
     phase: "Phase 3",
     cls: "p3",
     title: "Core Agent Security Skills",
-    desc: "IP isolation, contact parsing, Gemini Pro reasoning chains for incident summarization.",
+    tagline: "Empowering AI agents with logical reasoning and footprint protection",
+    desc: "Develop advanced LLM chains to analyze threat contexts safely while keeping agent footprints invisible.",
+    bullets: [
+      "Implement IP isolation layers, Tor-routing wrappers, and mock user agents to hide footprints.",
+      "Integrate entity-extraction algorithms targeting phone numbers, crypto wallets, and hidden links.",
+      "Design Gemini 1.5 Pro chain-of-thought routing to deduce coordination patterns.",
+      "Deploy localized auto-summarization templates to produce rapid incident intelligence reports."
+    ]
   },
   {
     phase: "Phase 4",
     cls: "p4",
     title: "Investigator Dashboard & Alerts",
-    desc: "Visual threat command center with Twilio-powered real-time WhatsApp alert digests.",
+    tagline: "Synthesizing graph networks into visual command centers",
+    desc: "Create interactive user interfaces for real-time visualization, query filters, and instant notification systems.",
+    bullets: [
+      "Develop a React-based interactive canvas rendering real-time Neo4j network graphs.",
+      "Build tabular search filters querying actors, timestamps, threat weights, and platforms.",
+      "Integrate Twilio API handlers to format and dispatch immediate threat alerts directly to WhatsApp.",
+      "Configure multi-user access levels ensuring sensitive investigations remain strictly audited."
+    ]
   },
   {
     phase: "Phase 5",
     cls: "p5",
     title: "Pilot Deployment & Optimization",
-    desc: "End-to-end testing, model refinement on real threat data, and field deployment.",
-  },
+    tagline: "Validating operational stability and scaling output quality",
+    desc: "Perform full-scale threat simulations, refine linguistic evaluation parameters, and deploy live integrations.",
+    bullets: [
+      "Simulate cross-platform threat campaigns to analyze end-to-end system response latency.",
+      "Finetune context prompts to decrease false positives and raise accuracy of entities extracted.",
+      "Secure production endpoints via OAuth2 credentials, strict CSRF mitigation, and session timeouts.",
+      "Establish automated feedback loops with partner agencies to continuously refine threat weight rules."
+    ]
+  }
 ];
 
 export interface TiltCardProps {
@@ -250,6 +285,7 @@ const CharacterV1 = ({
         opacity,
         rotateY,
         margin: isSpace ? "0 0.5rem" : "0 0.05rem",
+        willChange: "transform, opacity",
       }}
     >
       {char}
@@ -294,6 +330,7 @@ const CharacterV2 = ({
         transformOrigin: "center",
         display: "inline-block",
         margin: "0 0.5vw",
+        willChange: "transform, opacity",
       }}
     >
       <IconComponent />
@@ -317,8 +354,134 @@ const Bracket = ({ className }: { className: string }) => {
   );
 };
 
+const StickyPhaseCard = ({
+  i,
+  phase,
+  title,
+  tagline,
+  desc,
+  bullets,
+  cls,
+  progress,
+  range,
+  targetScale,
+  isMobile,
+}: {
+  i: number;
+  phase: string;
+  title: string;
+  tagline: string;
+  desc: string;
+  bullets: string[];
+  cls: string;
+  progress: any;
+  range: [number, number];
+  targetScale: number;
+  isMobile: boolean;
+}) => {
+  const container = useRef<HTMLDivElement>(null);
+  const scaleVal = useTransform(progress, range, [1, targetScale]);
+  const scale = isMobile ? 1 : scaleVal;
+
+  return (
+    <div
+      ref={container}
+      className={isMobile ? "relative flex items-center justify-center w-full py-3 px-1" : "sticky top-0 flex items-center justify-center w-full min-h-[70vh] py-12"}
+      style={{
+        zIndex: i + 1,
+      }}
+    >
+      <motion.div
+        style={{
+          scale,
+          top: isMobile ? 0 : `calc(10vh + ${i * 24}px)`,
+          backgroundColor: "var(--bg-3)",
+          willChange: "transform",
+        }}
+        className={cn(
+          "relative w-full max-w-5xl rounded-3xl overflow-hidden border border-[rgba(255,255,255,0.06)] shadow-2xl origin-top"
+        )}
+      >
+        <div className="p-6 sm:p-10 md:p-12">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-center">
+            {/* Left Side: Title, Phase, Tagline & Main Description */}
+            <div className="md:col-span-5 flex flex-col justify-center text-left">
+              <span className={`roadmap-phase ${cls}`} style={{ display: "inline-block", width: "fit-content", marginBottom: "0.75rem" }}>
+                {phase}
+              </span>
+              <h4 style={{ fontSize: isMobile ? "1.5rem" : "1.85rem", fontWeight: "800", color: "var(--fg-1)", marginBottom: "0.5rem", lineHeight: "1.2" }}>
+                {title}
+              </h4>
+              <p className="text-accent font-semibold mb-3 md:mb-4" style={{ fontSize: isMobile ? "0.9rem" : "0.95rem" }}>
+                {tagline}
+              </p>
+              <p style={{ fontSize: isMobile ? "0.85rem" : "0.95rem", color: "var(--fg-3)", lineHeight: "1.6", margin: 0 }}>
+                {desc}
+              </p>
+            </div>
+
+            {/* Right Side: Key Deliverables list */}
+            <div className="md:col-span-7 flex flex-col justify-center gap-3 border-t md:border-t-0 md:border-l border-[rgba(255,255,255,0.06)] pt-5 md:pt-0 md:pl-8 text-left">
+              <span className="text-[0.7rem] uppercase tracking-wider text-accent font-mono mb-1 block">Key deliverables</span>
+              {bullets.map((bullet: string, bIdx: number) => (
+                <div key={bIdx} className="flex items-start gap-2.5">
+                  <span className="text-accent text-sm mt-0.5 select-none">✓</span>
+                  <p style={{ fontSize: isMobile ? "0.85rem" : "0.9rem", color: "var(--fg-2)", lineHeight: "1.5", margin: 0 }}>
+                    {bullet}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const StickyPhasesTimeline = ({ phases, isMobile }: { phases: any[]; isMobile: boolean }) => {
+  const container = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: container,
+    offset: ["start start", "end end"],
+  });
+
+  return (
+    <div
+      ref={container}
+      className={isMobile ? "relative flex w-full flex-col items-center justify-center gap-5 pt-4 pb-8" : "relative flex w-full flex-col items-center justify-center pt-8 pb-[10vh]"}
+    >
+      {phases.map((p, i) => {
+        // Calculate scaling factors so bottom cards stack behind top cards nicely
+        const targetScale = Math.max(0.85, 1 - (phases.length - i - 1) * 0.03);
+        return (
+          <StickyPhaseCard
+            key={i}
+            i={i}
+            {...p}
+            progress={scrollYProgress}
+            range={[i * 0.2, 1]}
+            targetScale={targetScale}
+            isMobile={isMobile}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
 export default function Roadmap() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Track scroll position of the parent section
   const { scrollYProgress } = useScroll({
@@ -345,6 +508,84 @@ export default function Roadmap() {
 
   const iconStageOpacity = useTransform(smoothProgress, [0.55, 0.65, 0.98], [0, 1, 1]);
   const iconStageY = useTransform(smoothProgress, [0.55, 0.65], [40, 0]);
+
+  if (isMobile) {
+    return (
+      <section ref={containerRef} className="phases-section" id="roadmap" style={{ position: "relative", zIndex: 10 }}>
+        <style dangerouslySetInnerHTML={{__html: `
+          .phases-section {
+            padding: 4rem 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+          }
+          .phases-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            width: 100%;
+          }
+          .phase-card-wrapper {
+            display: flex;
+          }
+          .phase-card {
+            background: rgba(32, 31, 30, 0.45);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            transition: border-color 0.3s ease, background 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            width: 100%;
+            height: 100%;
+          }
+          .phase-card:hover {
+            border-color: var(--accent);
+            background: rgba(40, 39, 38, 0.65);
+          }
+          html.light .phase-card {
+            background: rgba(255, 255, 255, 0.5);
+            border-color: rgba(0, 0, 0, 0.06);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03);
+          }
+          html.light .phase-card:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.8);
+          }
+        `}} />
+
+        {/* 1. Integration Stack Section */}
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <span className="section-label">System Architecture</span>
+          <h3 className="section-heading" style={{ fontSize: "2rem", margin: "0.5rem 0", color: "var(--fg-1)" }}>
+            Core Integrations
+          </h3>
+        </div>
+
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.75rem", marginBottom: "4rem", padding: "0 0.5rem" }}>
+          {macIcon.map((Icon, idx) => (
+            <div key={idx} style={{ transform: "scale(0.8)" }}>
+              <Icon />
+            </div>
+          ))}
+        </div>
+
+        {/* 2. Timeline Section */}
+        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+          <span className="section-label">Execution Strategy</span>
+          <h3 className="section-heading" style={{ fontSize: "2rem", margin: "0.5rem 0", color: "var(--fg-1)" }}>
+            Implementation Timeline
+          </h3>
+          <p className="section-desc">Five distinct phases designed for robust platform deployment.</p>
+        </div>
+
+        <StickyPhasesTimeline phases={phases} isMobile={isMobile} />
+      </section>
+    );
+  }
 
   return (
     <>
@@ -506,7 +747,7 @@ export default function Roadmap() {
             border-radius: var(--radius);
             padding: 2rem;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            transition: border-color 0.3s ease, background 0.3s ease; /* Removed transform transition */
+            transition: border-color 0.3s ease, background 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -548,50 +789,7 @@ export default function Roadmap() {
           <p className="section-desc">Five distinct phases designed for robust platform deployment.</p>
         </div>
 
-        <div className="phases-grid">
-          {phases.map((p, idx) => (
-            <motion.div
-              className={`phase-card-wrapper ${p.cls}`}
-              key={idx}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5, delay: idx * 0.1, ease: "easeOut" }}
-            >
-              <TiltCard className="phase-card" scale={1.03} tiltLimit={10}>
-                <span
-                  className={`roadmap-phase ${p.cls}`}
-                  style={{
-                    display: "inline-block",
-                    marginBottom: "1rem",
-                  }}
-                >
-                  {p.phase}
-                </span>
-                <h4
-                  style={{
-                    fontSize: "1.15rem",
-                    fontWeight: "700",
-                    color: "var(--fg-1)",
-                    marginBottom: "0.5rem",
-                  }}
-                >
-                  {p.title}
-                </h4>
-                <p
-                  style={{
-                    fontSize: "0.88rem",
-                    color: "var(--fg-3)",
-                    lineHeight: "1.65",
-                    margin: 0,
-                  }}
-                >
-                  {p.desc}
-                </p>
-              </TiltCard>
-            </motion.div>
-          ))}
-        </div>
+        <StickyPhasesTimeline phases={phases} isMobile={isMobile} />
       </section>
     </>
   );

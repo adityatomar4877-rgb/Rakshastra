@@ -764,6 +764,9 @@ a { color: inherit; text-decoration: none; }
   text-overflow: ellipsis; 
   font-family: ui-monospace, SFMono-Regular, Consolas, Menlo, Monaco, monospace !important;
   letter-spacing: 0.02em !important;
+  flex-shrink: 0;
+  min-height: 1.5rem;
+  line-height: 1.5rem;
 }
 .log-line.system { color: var(--fg-4); }
 .log-line.success { color: var(--green); }
@@ -1045,3 +1048,99 @@ a { color: inherit; text-decoration: none; }
 .scanning-dot {
   animation: scanPulse 1.5s infinite ease-in-out;
 }
+
+/* ========== Legal / Privacy & License Pages ========== */
+.legal-page-container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 6rem 1.5rem 8rem;
+  position: relative;
+  z-index: 10;
+}
+@media (min-width: 640px) {
+  .legal-page-container {
+    padding: 7rem 2rem 10rem;
+  }
+}
+.back-link {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--coral);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.back-link:hover {
+  opacity: 0.8;
+  transform: translateX(-4px);
+}
+.legal-title {
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  color: var(--fg-1);
+  margin-bottom: 0.5rem;
+  line-height: 1.15;
+}
+.legal-subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--fg-4);
+  margin-bottom: 3.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.legal-section {
+  margin-bottom: 3rem;
+}
+.legal-section h2 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--fg-1);
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+.legal-section p {
+  font-size: 0.95rem;
+  color: var(--fg-2);
+  line-height: 1.75;
+}
+.legal-section p strong {
+  color: var(--fg-1);
+}
+.contact-box {
+  margin-top: 4rem;
+  padding: 1.75rem;
+  background: rgba(255, 125, 54, 0.02);
+  border: 1px solid rgba(255, 125, 54, 0.15);
+  border-radius: var(--radius);
+}
+.contact-box h3 {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--coral);
+  margin-bottom: 0.75rem;
+}
+.contact-box p {
+  font-size: 0.9rem;
+  color: var(--fg-2);
+  line-height: 1.65;
+}
+.disclaimer-block {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--orange);
+  background: rgba(255, 168, 40, 0.02);
+  border: 1px solid rgba(255, 168, 40, 0.15);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  white-space: pre-wrap;
+  line-height: 1.6;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
