@@ -1,4 +1,6 @@
 import re
+import json
+import os
 from typing import Dict, Any, List
 
 class DrugSlangEngine:
@@ -17,7 +19,37 @@ class DrugSlangEngine:
     DRUG_EMOJIS = {"💊", "🌿", "🚬", "❄️", "🍀", "🍬", "🦄", "⚡"}
 
     def __init__(self):
-        pass
+        self.flagged_handles = set()
+        # Load the pre-extracted drug handles dataset
+        try:
+            curr_dir = os.path.dirname(os.path.abspath(__file__))
+            handles_path = os.path.join(curr_dir, "flagged_handles.json")
+            if os.path.exists(handles_path):
+                with open(handles_path, "r", encoding="utf-8") as f:
+                    self.flagged_handles = set(json.load(f))
+        except Exception:
+            pass
+
+    def detect_flagged_handles(self, text: str) -> List[str]:
+        """Extract social media handles or profile links and check against flagged list."""
+        matches = []
+        if not self.flagged_handles:
+            return matches
+            
+        # Match handles starting with @ or extracted from URLs
+        # e.g., @username, instagram.com/username, t.me/username, twitter.com/username
+        patterns = [
+            r"@([a-zA-Z0-9_]{3,15})",
+            r"(?:instagram\.com|t\.me|twitter\.com|twitter\.com\/status)\/([a-zA-Z0-9_]{3,15})"
+        ]
+        
+        for pattern in patterns:
+            for match in re.finditer(pattern, text, re.IGNORECASE):
+                handle = match.group(1).strip()
+                if handle in self.flagged_handles:
+                    matches.append(handle)
+                    
+        return sorted(list(set(matches)))
 
     def detect_slang(self, text: str) -> Dict[str, List[str]]:
         """Scan text and identify matching slang categories."""
