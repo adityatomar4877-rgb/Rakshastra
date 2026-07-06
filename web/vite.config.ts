@@ -59,6 +59,11 @@ function rakshastraDevToken(): Plugin {
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), rakshastraDevToken()],
+  css: {
+    postcss: {
+      plugins: [],
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
