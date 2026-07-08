@@ -5895,6 +5895,7 @@ def _find_stale_dashboard_pids(
                             dashboard_pids.append(int(pid_str))
                         except ValueError:
                             pass
+                    current_cmd = ""
         else:
             # Linux / macOS: scan the process table via ps and match against
             # the same explicit patterns list used on Windows.  Using ps
