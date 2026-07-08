@@ -187,11 +187,7 @@ apps/desktop/demo/
 # pr-infographic-workflow reference (storage rule + lapse #8 / #COMMIT-1).
 infographic/
 
-# Landing Page duplicate codebase / release / test assets
-/Landing Page/rakshastra_agent_win_x64.zip
-/Landing Page/ChatGPT Image*
-/Landing Page/Rakshastra cyber defense logo.png
-/Landing Page/Landing Page/
+
 
 
 
