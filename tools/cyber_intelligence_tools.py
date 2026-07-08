@@ -312,6 +312,53 @@ def cyber_log_audit_compliance_handler(args: Dict[str, Any], **kwargs) -> str:
         return tool_error(f"Failed to log audit/compliance: {e}")
 
 
+def cyber_train_dataset_handler(args: Dict[str, Any], **kwargs) -> str:
+    csv_path = args.get("csv_path", "")
+    dataset_type = args.get("dataset_type", "twitter")
+
+    if not csv_path:
+        return tool_error("csv_path is required")
+
+    import os
+    if not os.path.exists(csv_path):
+        return tool_error(f"CSV file not found: {csv_path}")
+
+    try:
+        from scripts.train_drug_classifier import train
+        stats = train(csv_path)
+
+        # Reset cached engines so they reload learned data
+        global _slang_engine, _drug_engine
+        _slang_engine = None
+        _drug_engine = None
+
+        # Log to audit
+        audit = _get_audit_engine()
+        audit.log_action(
+            investigator=kwargs.get("session_id", "system_agent"),
+            action="train_dataset",
+            target=csv_path,
+            source_data=f"Trained from {dataset_type} dataset: {stats.get('total_rows_processed', 0)} rows"
+        )
+
+        return tool_result({
+            "success": True,
+            "message": f"Training complete. Processed {stats.get('total_rows_processed', 0)} rows.",
+            "stats": stats,
+        })
+    except Exception as e:
+        return tool_error(f"Training failed: {e}")
+
+
+def cyber_get_vocabulary_stats_handler(args: Dict[str, Any], **kwargs) -> str:
+    engine = _get_slang_engine()
+    try:
+        stats = engine.get_vocabulary_stats()
+        return tool_result(stats)
+    except Exception as e:
+        return tool_error(f"Failed to get vocabulary stats: {e}")
+
+
 # =============================================================================
 # OpenAI Function-Calling Schemas
 # =============================================================================
@@ -568,6 +615,44 @@ CYBER_LOG_AUDIT_COMPLIANCE_SCHEMA = {
 }
 
 
+CYBER_TRAIN_DATASET_SCHEMA = {
+    "name": "cyber_train_dataset",
+    "description": (
+        "Train the drug content classifier from a labeled CSV dataset. "
+        "Extracts drug vocabulary, slang, handle patterns, and transaction phrases "
+        "from labeled data to improve classification accuracy."
+    ),
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "csv_path": {
+                "type": "string",
+                "description": "Absolute path to the CSV file. Must have columns: url, label (T=drug, F=non-drug)."
+            },
+            "dataset_type": {
+                "type": "string",
+                "enum": ["twitter", "telegram", "instagram"],
+                "description": "Type of dataset being ingested. Default: twitter."
+            }
+        },
+        "required": ["csv_path"]
+    }
+}
+
+CYBER_GET_VOCABULARY_STATS_SCHEMA = {
+    "name": "cyber_get_vocabulary_stats",
+    "description": (
+        "Get statistics about the drug classifier's loaded vocabulary, "
+        "including learned terms, flagged handles, and pattern counts."
+    ),
+    "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+    }
+}
+
+
 # =============================================================================
 # Register Tools
 # =============================================================================
@@ -578,7 +663,25 @@ registry.register(
     schema=CYBER_COLLECT_OSINT_SCHEMA,
     handler=cyber_collect_osint_handler,
     check_fn=lambda: True,
-    emoji="📡",
+    emoji="\U0001f4e1",
+)
+
+registry.register(
+    name="cyber_train_dataset",
+    toolset="cyber_intelligence",
+    schema=CYBER_TRAIN_DATASET_SCHEMA,
+    handler=cyber_train_dataset_handler,
+    check_fn=lambda: True,
+    emoji="\ud83c\udfeb",
+)
+
+registry.register(
+    name="cyber_get_vocabulary_stats",
+    toolset="cyber_intelligence",
+    schema=CYBER_GET_VOCABULARY_STATS_SCHEMA,
+    handler=cyber_get_vocabulary_stats_handler,
+    check_fn=lambda: True,
+    emoji="\ud83d\udcca",
 )
 
 registry.register(
