@@ -6,6 +6,9 @@ from rakshastra_core.intelligence.entity_resolution import EntityResolutionEngin
 from rakshastra_core.intelligence.intelligence_graph import IntelligenceGraph
 from rakshastra_core.intelligence.threat_prioritization import ThreatPrioritizationEngine
 from rakshastra_core.intelligence.audit_compliance import AuditComplianceEngine
+from rakshastra_core.intelligence.threat_intelligence import ThreatIntelligenceEngine, IntelligencePack
+from rakshastra_core.intelligence.graph_engine import GraphEngine
+from rakshastra_core.intelligence.timeline_engine import InvestigationTimelineEngine
 
 __all__ = [
     "IntelligenceCollector",
@@ -15,5 +18,9 @@ __all__ = [
     "EntityResolutionEngine",
     "IntelligenceGraph",
     "ThreatPrioritizationEngine",
-    "AuditComplianceEngine"
+    "AuditComplianceEngine",
+    "ThreatIntelligenceEngine",
+    "IntelligencePack",
+    "GraphEngine",
+    "InvestigationTimelineEngine"
 ]
