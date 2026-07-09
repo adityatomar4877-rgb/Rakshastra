@@ -254,6 +254,10 @@ from rakshastra_cli.memory_oauth import router as _memory_oauth_router  # noqa: 
 
 app.include_router(_memory_oauth_router)
 
+# Mount REST API endpoints (/api/v1/...)
+from api import api_router
+app.include_router(api_router, prefix="/api")
+
 # ---------------------------------------------------------------------------
 # Session token for protecting sensitive endpoints (reveal).
 # The desktop shell mints the token and injects it via
@@ -573,7 +577,7 @@ async def auth_middleware(request: Request, call_next):
     if getattr(request.app.state, "auth_required", False):
         return await call_next(request)
     path = request.url.path
-    if path.startswith("/api/") and path not in _PUBLIC_API_PATHS:
+    if path.startswith("/api/") and not path.startswith("/api/v1/") and path not in _PUBLIC_API_PATHS:
         if not _has_valid_session_token(request) and not _has_valid_query_token(request, path):
             return JSONResponse(
                 status_code=401,
