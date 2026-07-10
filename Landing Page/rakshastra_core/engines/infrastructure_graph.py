@@ -167,7 +167,8 @@ class InfrastructureGraph:
         conn = self._get_connection()
         try:
             if query:
-                escaped_query = f'"{query.replace("\"", "\"\"")}"'
+                clean_query = query.replace('"', '""')
+                escaped_query = f'"{clean_query}"'
                 rows = conn.execute(
                     """
                     SELECT a.* FROM assets a
