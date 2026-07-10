@@ -70,11 +70,12 @@ def _is_mcp_catalog(p: str) -> bool:
 def classify(files: list[str]) -> dict[str, bool]:
     """Map changed paths to ``{lane: should_run}``."""
     files = [f.strip() for f in files if f.strip()]
+    has_website = os.path.isdir("website")
     ret = {
         "python": any(not _py_irrelevant(f) for f in files),
         "docker_meta":  any(f.startswith(_DOCKER_META) for f in files),
         "frontend": any(f.startswith(_FRONTEND) or f in _ROOT_NPM for f in files),
-        "site": any(f.startswith(_SITE) for f in files),
+        "site": has_website and any(f.startswith(_SITE) for f in files),
         "scan": any(_is_scan(f) for f in files),
         "deps": any(f == "pyproject.toml" for f in files),
         "mcp_catalog": any(_is_mcp_catalog(f) for f in files),
@@ -83,7 +84,7 @@ def classify(files: list[str]) -> dict[str, bool]:
         ret["python"] = True
         ret["docker_meta"] = True
         ret["frontend"] = True
-        ret["site"] = True
+        ret["site"] = has_website
         ret["scan"] = True
         ret["deps"] = True
 
