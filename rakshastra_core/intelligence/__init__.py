@@ -11,6 +11,7 @@ from rakshastra_core.intelligence.graph_engine import GraphEngine
 from rakshastra_core.intelligence.timeline_engine import InvestigationTimelineEngine
 from rakshastra_core.intelligence.correlation_engine import MultiSourceCorrelationEngine
 from rakshastra_core.intelligence.explainable_reasoning import ExplainableReasoningEngine, LLMExplanationProvider
+from rakshastra_core.intelligence.autonomous_orchestrator import AutonomousOrchestrator
 
 __all__ = [
     "IntelligenceCollector",
@@ -27,5 +28,6 @@ __all__ = [
     "InvestigationTimelineEngine",
     "MultiSourceCorrelationEngine",
     "ExplainableReasoningEngine",
-    "LLMExplanationProvider"
+    "LLMExplanationProvider",
+    "AutonomousOrchestrator"
 ]
