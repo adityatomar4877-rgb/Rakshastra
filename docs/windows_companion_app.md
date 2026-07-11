@@ -1,30 +1,58 @@
-# Windows Companion App Strategy
+# ☤ WINDOWS DESKTOP COMPANION
+> **Windows Agent, Registry/Filesystem Scanner, and Winget Packaging Specifications**
 
-## 1. What the Windows Companion App Does
+The Rakshastra Windows Companion App is a native C#/WPF client distributed via Windows Package Manager (`winget`) designed to run local on-premise scans, load credential vaults, and perform desktop OCR.
 
-The Rakshastra Windows Companion App is a native desktop client that allows operators to run on-premise security scanning, system monitoring, and evidence collections:
-- **Desktop Threat Scans**: Scans system registries, local file folders, and network configurations.
-- **Local Screenshot OCR**: Captures desktop activity or investigator screenshot files to run local/cloud OCR.
-- **Credential Vault**: Securely manages local API keys (e.g. Gemini, custom endpoints) using Windows Credential Manager.
+---
 
-## 2. Why it Exists Separately from the Web Dashboard
+## 💎 1. Key Desktop Capabilities
 
-- **System-Level Permissions**: A browser-based web dashboard cannot access the user's local filesystem or run diagnostic terminal commands (like registry scans) due to sandbox limits.
-- **Local OCR Performance**: Heavy OCR workloads are executed locally on the user's machine before sending only resolved text parameters to the cloud, saving network bandwidth.
-- **Offline Mode**: Operates in fully air-gapped on-premise environments, caching threat indicators until it can sync back to the cloud/server.
+| Capability | Feature | Technical Implementation |
+| :--- | :--- | :--- |
+| **System-Level Scans** | Registry & Local Disk Audit | Direct inspection of autostart locations, system environment variables, and active ports. |
+| **Desktop OCR** | Screen Capture Ingestion | Automated OCR extraction of threat text from screenshots using local Windows.Media.OCR engines. |
+| **Credential Manager** | Secure Local Vault | Encryption of Google Gemini API keys using Windows DPAPI (Data Protection API) vaults. |
+| **Offline Sync Cache** | Air-Gapped Queueing | SQLite local cache queueing extracted threat indicators until connection to the FastAPI server is restored. |
 
-## 3. Installation via `winget`
+---
 
-To make setup simple for enterprises and developers, the desktop app is packaged and distributed using the official Windows Package Manager (`winget`):
+## ⚙️ 2. Package Distribution via `winget`
+
+To support standard corporate deployments, the companion installer is registered as an official silent MSI package on `winget`:
 
 ```cmd
+:: Install the authoritative Rakshastra Desktop Agent
 winget install Rakshastra.Companion
 ```
 
-This automates the installation, registry registrations, and updates.
+This automates:
+1. Downloading the certified `.msix` container.
+2. Registering background execution services (`RakshastraScrubber.exe`).
+3. Configuring local port listeners for host web-dashboard communication.
 
-## 4. Connection & Synchronization
+---
 
-- The desktop companion connects to the Rakshastra API gateway (FastAPI server) via local or remote HTTP REST endpoints.
-- Authenticaton is handled via secure API keys or Algorand-backed x402 wallets.
-- **Simple Onboarding**: On first launch, the user inputs their server URL or scans a pairing QR code displayed in the web dashboard, linking the desktop scanner to their centralized threat graph instantly.
+## 🔄 3. Hybrid Synchronization Pipeline
+
+Browser sandbox limitations prevent web dashboards from executing local security scans. The Windows Companion bridges this gap:
+
+```
+┌─────────────────────────────────┐            ┌─────────────────────────────────┐
+│     BROWSER WEB DASHBOARD       │            │    WINDOWS DESKTOP COMPANION    │
+│  (Displays global threat graph  │            │  (Accesses filesystem, logs,    │
+│   and correlation nodes)        │            │   ports, registry, local OCR)   │
+└────────────────┬────────────────┘            └────────────────┬────────────────┘
+                 │                                              │
+                 │              Pairing Handshake               │
+                 └──────────────────────────────────────────────┘
+                                        │
+                                        ▼
+                               ┌─────────────────┐
+                               │ RAKSHASTRA API  │
+                               │ (FastAPI Server)│
+                               └─────────────────┘
+```
+
+1. **Pairing Handshake**: The user launches the Windows Companion and scans the pairing QR code from the Web UI.
+2. **Local Registry & File Auditing**: The companion runs local file checks and posts results to `/api/v1/threat/analyze-text`.
+3. **Integrated Evidence**: Screen captures are processed using local hardware acceleration, and the extracted indicators are posted to the central graph.
