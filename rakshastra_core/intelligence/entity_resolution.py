@@ -38,6 +38,18 @@ class EntityResolutionEngine:
     def link_entities(self, entity_a: str, entity_b: str):
         """Link two entity tokens together as belonging to the same network profile."""
         self._union(entity_a, entity_b)
+        for entity in (entity_a, entity_b):
+            if entity not in self.entity_metadata:
+                etype = "unknown"
+                if entity.startswith("+") or (entity.isdigit() and len(entity) >= 10):
+                    etype = "phone"
+                elif entity.startswith("@"):
+                    etype = "telegram"
+                elif entity.startswith("0x") and len(entity) == 42:
+                    etype = "wallet"
+                elif "@" in entity and not entity.startswith("@"):
+                    etype = "upi_id"
+                self.entity_metadata[entity] = {"type": etype, "confidence": 1.0}
 
     def extract_entities_from_text(self, text: str, source_type: str = "text") -> List[Tuple[str, str, float]]:
         """Extract typed entities from a text payload.
