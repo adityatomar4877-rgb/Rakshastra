@@ -1,32 +1,41 @@
-# Implementation Plan - WhatsApp Bot Mode & Windows Termination Fix
+# ☤ IMPLEMENTATION PLAN
+> **WhatsApp Platform Bot Migration & Windows Process Lifecycle Management**
 
-This plan covers transitioning the WhatsApp bridge to **bot** mode (allowing friends to message the bot and enabling group chats) and fixing the Windows process termination issue that causes gateway connection timeouts.
-
-## Proposed Changes
-
-### Configuration
-
-#### [MODIFY] [.env](file:///C:/Users/intel/AppData/Local/rakshastra/.env)
-* Update `WHATSAPP_MODE=self-chat` to `WHATSAPP_MODE=bot`.
-* This will allow the Baileys bridge and WhatsApp adapter to forward messages sent by contacts other than yourself (like your friend `919755745209`) to the Rakshastra gateway.
+This specification defines the deployment steps to migrate the WhatsApp platform adapter to **bot** mode and implement force-kill process cleanup routines for Windows servers.
 
 ---
 
-### WhatsApp Platform Adapter
+## 🚦 1. Proposed Modifications
 
-#### [MODIFY] [adapter.py](../plugins/platforms/whatsapp/adapter.py)
-* Update `_terminate_bridge_process()` to always include the `/F` (force) flag when calling `taskkill` on Windows.
-* This ensures that when the gateway stops, restarts, or reconnects the WhatsApp bridge, the headless Node.js process is immediately and reliably terminated rather than failing and leaving stale processes holding port 3000.
+| Component | File Path | Type | Action & Goal |
+| :--- | :--- | :--- | :--- |
+| **Configuration** | [`.env`](file:///C:/Users/intel/AppData/Local/rakshastra/.env) | **Modify** | Swap `WHATSAPP_MODE=self-chat` to `WHATSAPP_MODE=bot` to enable multi-contact ingestion. |
+| **Adapter Code** | [`adapter.py`](file:///C:/rakshastra/plugins/platforms/whatsapp/adapter.py) | **Modify** | Update `_terminate_bridge_process()` with `/F` parameter force flag under Windows `taskkill`. |
 
 ---
 
-## Verification Plan
+## 🛠️ 2. Step-by-Step Changes
 
-### Automated Tests
-* We can run python to verify config loading.
-* Run: `poetry run pytest tests/tools/test_cyber_intelligence_tools.py` to ensure core test suites are unaffected.
+### A. Enable Ingestion In Gateways
+Update [.env](file:///C:/Users/intel/AppData/Local/rakshastra/.env) variables:
+* Set `WHATSAPP_MODE=bot`. This instructs the Baileys handler to process and reply to inbound requests from all allowed contacts.
 
-### Manual Verification
-1. Start the gateway: `poetry run rakshastra gateway`.
-2. Confirm the WhatsApp bridge starts and connects without timing out.
-3. Message the bot from your friend's number (`919755745209`) and verify it processes the message and responds successfully.
+### B. Implement Force Process Termination
+Update the platform adapter [`adapter.py`](file:///C:/rakshastra/plugins/platforms/whatsapp/adapter.py):
+* Modify the process termination subprocess call to execute `taskkill /F /PID <pid>` on Windows platforms.
+* This releases port `3000` immediately, preventing subsequent daemon binding failures.
+
+---
+
+## 🧪 3. Verification Plan
+
+### 1. Automated Regression Suite
+Run core platform tests to verify process lifecycle utilities are healthy:
+```bash
+python -m pytest tests/tools/test_cyber_intelligence_tools.py
+```
+
+### 2. Manual End-to-End Validation
+1. **Initialize Gateway Daemon**: Execute `rakshastra gateway start`.
+2. **Verify Port Handshake**: Confirm port `3000` binds cleanly without timing out.
+3. **Inbound Test**: Send an investigation query from client number `919755745209` to the WhatsApp bot JID; confirm automated response is returned.
