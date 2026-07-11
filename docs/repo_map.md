@@ -1,56 +1,40 @@
-# Rakshastra Repository Map
+# ☤ REPOSITORY ARCHITECTURE MAP
+> **Codebase Directory Layout, Module Boundaries, and Component Index**
 
-This document outlines the folder structure of the Rakshastra codebase, indicating the authoritative directories, packages, and the locations of static assets.
+This reference map documents the directory structures, package boundaries, and primary source code assets of the Rakshastra repository.
 
-## Directory Layout
+---
 
-* **`web/`**
-  - *Status*: **Authoritative Frontend**
-  - *Description*: The React + TypeScript web dashboard driven by Vite. Serves the primary user interface.
+## 📂 1. Directory Structure Reference
 
-* **`rakshastra_core/`**
-  - *Status*: **Authoritative Core**
-  - *Description*: The foundational security analytics and intelligence codebase:
-    - `/intelligence/content_classifier.py`: Drug Intelligence classifiers.
-    - `/intelligence/threat_intelligence.py`: Modular Threat Intelligence Engine with 9 packs.
-    - `/intelligence/entity_resolution.py`: Footprint and alias extraction and merging.
-    - `/intelligence/graph_engine.py`: Spring-embedder visualization layouts.
-    - `/intelligence/timeline_engine.py`: Step replay and chronological investigation reconstruction.
-    - `/intelligence/explainable_reasoning.py`: AI explanation generator and markdown report builder.
-    - `/intelligence/autonomous_orchestrator.py`: Dynamic task planners and autonomous investigation loops.
+| Directory | Scope & Status | Description | Primary Code Assets |
+| :--- | :--- | :--- | :--- |
+| **`rakshastra_core/`** | **Authoritative Core** | Foundational threat analysis engines, entity resolution, graph engines, and autonomous orchestrators. | `/intelligence/`, `/models/` |
+| **`rakshastra_cli/`** | **Authoritative CLI** | FastAPI backend server, setup wizard, CLI command interface, and bootstrap utilities. | `main.py`, `setup.py`, `web_server.py` |
+| **`web/`** | **Authoritative Web UI** | React + TypeScript web dashboard powered by Vite for graphical investigator analysis. | `/src/components/`, `/src/pages/` |
+| **`agent/`** | **Authoritative Agent** | Native Google Gemini adapters, message loop, context compression, and runtime helper utils. | `gemini_native_adapter.py`, `run_agent.py` |
+| **`tools/`** | **Authoritative Tools** | Cyber intelligence tool wrappers, file editing, terminal utilities, and approval gates. | `cyber_intelligence_tools.py`, `todo_tool.py` |
+| **`plugins/`** | **Authoritative Gateways**| Chat adapters and daemon bridges for external messaging integrations. | `/platforms/whatsapp/`, `/platforms/telegram/` |
+| **`docs/`** | **Authoritative Docs** | Hackathon strategies, product plans, API specifications, and setup manuals. | `Architecture.md`, `API.md`, `Roadmap.md` |
+| **`tests/`** | **Authoritative Tests** | Comprehensive unit, stress, integration, and platform adapter test suites. | `tests/rakshastra_core/`, `tests/rakshastra_cli/` |
 
-* **`rakshastra_cli/`**
-  - *Status*: **Authoritative CLI & Server**
-  - *Description*: The main FastAPI backend (`web_server.py`) and command-line execution interfaces.
+---
 
-* **`gateway/`**
-  - *Status*: **Authoritative Gateway**
-  - *Description*: Platform messaging listeners and dispatchers.
+## 🧱 2. System Layer Boundaries
 
-* **`agent/`**
-  - *Status*: **Authoritative Agent**
-  - *Description*: Core agent prompt formatting and execution loop.
-
-* **`tools/`**
-  - *Status*: **Authoritative Tools**
-  - *Description*: AI tool declarations and handlers.
-
-* **`plugins/`**
-  - *Status*: **Authoritative Plugins**
-  - *Description*: Headless adapters for Telegram, Discord, and WhatsApp.
-
-* **`assets/`**
-  - *Status*: **Authoritative Assets**
-  - *Description*: Screenshots, logos, and product graphics.
-
-* **`tests/`**
-  - *Status*: **Authoritative Tests**
-  - *Description*: Unit and integration test suites.
-
-* **`docs/`**
-  - *Status*: **Authoritative Documentation**
-  - *Description*: XPRIZE strategy documents, x402 payment specifications, and setup sheets.
-
-* **`Landing Page/`**
-  - *Status*: **Cleaned Legacy Copy**
-  - *Description*: Stale copy of the main repository. Duplicated python backends, duplicate tests, and duplicate core packages have been pruned, leaving only the Next.js landing page assets.
+```
+┌────────────────────────────────────────────────────────┐
+│                        WEB UI                          │
+│                     (web/src/*)                        │
+└───────────┬────────────────────────────────┬───────────┘
+            │ API Queries                    │ WebSockets
+┌───────────▼────────────────────────────────▼───────────┐
+│                     CLI & WEB SERVER                   │
+│                (rakshastra_cli/web_server.py)          │
+└───────────┬────────────────────────────────┬───────────┘
+            │ Execution                      │ Tool Calls
+┌───────────▼────────────────────────────────▼───────────┐
+│                     INTELLIGENCE CORE                  │
+│                     (rakshastra_core/*)                │
+└────────────────────────────────────────────────────────┘
+```
