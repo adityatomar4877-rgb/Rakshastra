@@ -42,6 +42,8 @@ class DrugSlangEngine:
         for cat, terms in self._BASE_SLANG.items():
             self.SLANG_DATABASE[cat] = list(terms)
 
+        self.learned_words: set[str] = set()
+
         # ── Build the live emoji set ─────────────────────────────────
         self.DRUG_EMOJIS = set(self._BASE_EMOJIS)
 
@@ -83,6 +85,7 @@ class DrugSlangEngine:
                 if term not in self.SLANG_DATABASE[cat]:
                     self.SLANG_DATABASE[cat].append(term)
                     self._learned_vocab_count += 1
+                self.learned_words.add(term)
             logger.debug("Loaded %d learned vocabulary terms", self._learned_vocab_count)
         except Exception as e:
             logger.warning("Failed to load learned vocabulary: %s", e)
