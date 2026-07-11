@@ -42,6 +42,16 @@ class DrugIntelligenceEngine:
                 f"{list(matched_slang.keys())}"
             )
 
+        # 1b. Learned vocabulary analysis
+        learned_matches = []
+        for category, keywords in matched_slang.items():
+            for kw in keywords:
+                if kw in self.slang_engine.learned_words:
+                    learned_matches.append(kw)
+        if learned_matches:
+            score += 0.25
+            reasons.append(f"Matched learned vocabulary terms: {learned_matches}")
+
         # 2. Emoji analysis
         matched_emojis = self.slang_engine.detect_emojis(text)
         if matched_emojis:
