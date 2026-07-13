@@ -4,6 +4,7 @@ import { useI18n } from "@/i18n";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { cn } from "@/lib/utils";
 import { PluginSlot } from "@/plugins";
+import { WalletConnect } from "@/components/WalletConnect";
 
 export const PROJECT_URL = "https://docs.rakshastra.local";
 export const DOCS_URL = "https://docs.rakshastra.local";
@@ -42,31 +43,39 @@ export default function DocsPage() {
   return (
     <div
       className={cn(
-        "flex min-h-0 w-full min-w-0 flex-1 flex-col",
-        "pt-1 sm:pt-2",
+        "flex min-h-0 w-full min-w-0 flex-1 flex-col lg:flex-row gap-4 p-4",
       )}
     >
-      <PluginSlot name="docs:top" />
-      <iframe
-        title={t.app.nav.documentation}
-        src={DOCS_URL}
-        className={cn(
-          "min-h-0 w-full min-w-0 flex-1",
-          "rounded-sm border border-current/20",
-          // Docusaurus paints over a transparent <html> / <body> and
-          // relies on the browser's canvas color (light by default) to
-          // fill the viewport. Inheriting the dashboard's dark color
-          // scheme makes that canvas dark, so the docs body text — which
-          // is tuned for a light canvas — becomes near-invisible. Force a
-          // light color scheme + white background on the iframe element so
-          // the docs render cleanly regardless of the active dashboard
-          // theme or the user's prefers-color-scheme.
-          "[color-scheme:light] bg-white",
-        )}
-        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        referrerPolicy="no-referrer-when-downgrade"
-      />
-      <PluginSlot name="docs:bottom" />
+      {/* Documentation Viewer */}
+      <div className="flex flex-col flex-1 min-w-0 min-h-0">
+        <PluginSlot name="docs:top" />
+        <iframe
+          title={t.app.nav.documentation}
+          src={DOCS_URL}
+          className={cn(
+            "min-h-0 w-full min-w-0 flex-1",
+            "rounded-sm border border-current/20",
+            // Docusaurus paints over a transparent <html> / <body> and
+            // relies on the browser's canvas color (light by default) to
+            // fill the viewport. Inheriting the dashboard's dark color
+            // scheme makes that canvas dark, so the docs body text — which
+            // is tuned for a light canvas — becomes near-invisible. Force a
+            // light color scheme + white background on the iframe element so
+            // the docs render cleanly regardless of the active dashboard
+            // theme or the user's prefers-color-scheme.
+            "[color-scheme:light] bg-white",
+          )}
+          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
+        <PluginSlot name="docs:bottom" />
+      </div>
+
+      {/* Payment and Billing Panel */}
+      <div className="w-full lg:w-[350px] shrink-0 flex flex-col gap-4 overflow-y-auto pr-1">
+        <WalletConnect />
+      </div>
     </div>
   );
 }
+
