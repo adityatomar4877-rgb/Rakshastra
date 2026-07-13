@@ -103,6 +103,10 @@ export async function fetchJSON<T>(
   if (token) {
     setSessionHeader(headers, token);
   }
+  const algoTx = localStorage.getItem("rakshastra.algoTxId");
+  if (algoTx) {
+    headers.set("X-Algorand-Tx", algoTx);
+  }
   const res = await fetch(`${BASE}${url}`, {
     ...init,
     headers,
@@ -268,6 +272,10 @@ export async function authedFetch(
   const token = window.__RAKSHASTRA_SESSION_TOKEN__;
   if (token) {
     setSessionHeader(headers, token);
+  }
+  const algoTx = localStorage.getItem("rakshastra.algoTxId");
+  if (algoTx) {
+    headers.set("X-Algorand-Tx", algoTx);
   }
   return fetch(`${BASE}${url}`, {
     ...init,
