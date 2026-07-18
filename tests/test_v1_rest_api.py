@@ -60,7 +60,7 @@ def test_api_v1_chat_analyze():
         "messages": [
             "/start",
             "bot online",
-            "/start",
+            "click start to buy ecstasy",
             "bot online"
         ]
     }

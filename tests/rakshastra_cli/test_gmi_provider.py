@@ -326,9 +326,7 @@ class TestGmiMainFlow:
 
         monkeypatch.setattr("rakshastra_cli.auth.resolve_provider", lambda *args, **kwargs: None)
 
-        def fake_prompt_provider_choice(choices, default=0, *args, **kwargs):
-            if any("Google Gemini" in label for label in choices):
-                return 1
+        def fake_prompt_provider_choice(choices, default=0):
             return next(i for i, label in enumerate(choices) if label.startswith("GMI Cloud"))
 
         def fake_model_flow_api_key_provider(config, provider_id, current_model=""):

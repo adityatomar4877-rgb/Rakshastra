@@ -81,6 +81,10 @@ _RAKSHASTRA_CORE_TOOLS = [
     "cyber_collect_osint", "cyber_classify_drug_content", "cyber_detect_automation",
     "cyber_resolve_entities", "cyber_manage_intelligence_graph",
     "cyber_calculate_risk_and_prioritize", "cyber_log_audit_compliance",
+    # Behavioural Anomaly Detection Engine (Cyber Resilience Point 1)
+    "behavioral_ingest", "behavioral_collect_system",
+    "behavioral_query_anomalies", "behavioral_get_baselines",
+    "behavioral_anomaly_summary", "behavioral_rebuild_baseline",
 ]
 
 # Webhook events may originate from untrusted third-party content (for example,
@@ -278,6 +282,19 @@ TOOLSETS = {
             "security_risk",
             "security_report",
             "security_workflow"
+        ],
+        "includes": []
+    },
+
+    "behavioral_anomaly": {
+        "description": "Behavioural anomaly detection engine — builds baseline behavioral profiles for users, devices, and network segments, then detects deviations without relying on malware signatures.",
+        "tools": [
+            "behavioral_ingest",
+            "behavioral_collect_system",
+            "behavioral_query_anomalies",
+            "behavioral_get_baselines",
+            "behavioral_anomaly_summary",
+            "behavioral_rebuild_baseline"
         ],
         "includes": []
     },

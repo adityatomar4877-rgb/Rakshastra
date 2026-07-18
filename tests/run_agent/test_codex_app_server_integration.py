@@ -283,14 +283,15 @@ class TestRunConversationCodexPath:
 
     def test_chat_completions_loop_is_not_entered(self, fake_session):
         """The early-return must bypass the regular API call loop entirely.
-        We confirm by verifying the OpenAI client was never created (stays None)."""
+        We confirm by patching the SDK call and asserting it's never invoked."""
         agent = _make_codex_agent()
-        # The codex_app_server path returns before the chat_completions loop
-        # which would call _ensure_primary_openai_client and set self.client.
-        with patch.object(agent, "_spawn_background_review", return_value=None):
+        # The chat_completions loop calls self.client.chat.completions.create(...)
+        # If our early-return works, that path is dead.
+        with patch.object(agent, "client") as client_mock, patch.object(
+            agent, "_spawn_background_review", return_value=None
+        ):
             agent.run_conversation("hi")
-        # Client should still be None — the chat completions loop was never entered.
-        assert agent.client is None
+        assert not client_mock.chat.completions.create.called
 
     def test_gateway_terminal_cwd_seeds_codex_thread_cwd(self, monkeypatch, tmp_path):
         """Gateway sessions set TERMINAL_CWD without stamping agent.session_cwd.

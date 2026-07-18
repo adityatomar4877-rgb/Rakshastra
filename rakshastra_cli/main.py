@@ -2788,26 +2788,6 @@ def select_provider_and_model(args=None):
         current_model = current_model.get("default", "")
     current_model = current_model or "(not set)"
 
-    # Gemini-First onboarding flow check
-    print()
-    print("⚕ Select AI Provider Option")
-    print("=" * 60)
-    print("  Google Gemini is the default and recommended provider for Rakshastra.")
-    print("  To align with the Build with Gemini XPRIZE, select Option 1 below.")
-    print()
-    
-    choice_idx = _prompt_provider_choice(
-        [
-            "Google Gemini (Recommended & Default for Hackathon)",
-            "Advanced / Other Providers (OpenAI, Anthropic, Custom endpoints...)"
-        ],
-        default=0
-    )
-    
-    if choice_idx == 0:
-        _model_flow_api_key_provider(config, "gemini", current_model)
-        return
-
     # Read effective provider the same way the CLI does at startup:
     # config.yaml model.provider > env var > auto-detect
     config_provider = None
