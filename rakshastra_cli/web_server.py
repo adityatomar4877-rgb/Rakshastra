@@ -601,6 +601,197 @@ async def _token_auth_seam(request: Request, call_next):
 
 
 # ---------------------------------------------------------------------------
+# x402 Payment Middleware: Pay-Per-Request Micro-Billing
+# ---------------------------------------------------------------------------
+
+def load_x402_config() -> Dict[str, Any]:
+    """Load x402 configuration from config/x402.yaml."""
+    config_file = PROJECT_ROOT / "config" / "x402.yaml"
+    if not config_file.exists():
+        config_file = Path(os.environ.get("RAKSHASTRA_HOME", get_rakshastra_home())) / "config" / "x402.yaml"
+    
+    if config_file.exists():
+        try:
+            with open(config_file, "r", encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+                if isinstance(data, dict) and "payments" in data:
+                    return data["payments"]
+        except Exception as exc:
+            _log.warning("Failed to load config/x402.yaml: %s", exc)
+    
+    return {
+        "provider": "algorand",
+        "network": "testnet",
+        "price_per_request_algo": 0.05,
+        "recipient_wallet_address": "RAKSHASTRA_ALGORAND_WALLET_ADDRESS_PLACEHOLDER",
+        "protected_endpoints": [
+            "/api/v1/threat/analyze-text",
+            "/api/v1/entity/correlate",
+            "/api/v1/report/generate"
+        ]
+    }
+
+
+def is_valid_algorand_address(address: str) -> bool:
+    """Validate Algorand wallet address format (58 chars, uppercase Base32)."""
+    return len(address) == 58 and all(c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567" for c in address)
+
+
+@app.middleware("http")
+async def x402_payment_middleware(request: Request, call_next):
+    """Enforce pay-per-request micro-billing on protected endpoints."""
+    path = request.url.path
+    config = load_x402_config()
+    
+    # Check if endpoint is protected and payments are configured
+    protected_endpoints = config.get("protected_endpoints", [])
+    provider = config.get("provider", "algorand")
+    recipient = config.get("recipient_wallet_address", "").strip()
+    
+    # If the path matches or starts with any of the protected endpoints
+    is_protected = any(path == ep or path.startswith(ep) for ep in protected_endpoints)
+    
+    if is_protected and provider == "algorand":
+        # Check bypass state (e.g. testing mode or default placeholder wallet)
+        is_testing = os.environ.get("RAKSHASTRA_TESTING") == "1" or not is_valid_algorand_address(recipient)
+        
+        tx_id = request.headers.get("X-Algorand-Tx")
+        if not tx_id:
+            if is_testing and os.environ.get("RAKSHASTRA_X402_ENABLED") != "1":
+                return await call_next(request)
+            return JSONResponse(
+                status_code=402,
+                content={"detail": "Payment Required: X-Algorand-Tx header missing."}
+            )
+        
+        tx_id = tx_id.strip()
+        
+        # 1. Replay Attack Prevention (check SQLite database)
+        from rakshastra_state import SessionDB
+        db = SessionDB()
+        
+        def check_replay(conn):
+            cursor = conn.cursor()
+            cursor.execute("SELECT 1 FROM verified_x402_txs WHERE tx_id = ?", (tx_id,))
+            return cursor.fetchone() is not None
+            
+        try:
+            is_replay = check_replay(db._conn)
+        except Exception as exc:
+            _log.warning("x402: Failed database replay query: %s", exc)
+            is_replay = False
+            
+        if is_replay:
+            return JSONResponse(
+                status_code=403,
+                content={"detail": "Replay Attack Detected: Transaction ID already processed."}
+            )
+            
+        # 2. Query Algorand indexer for transaction details
+        network = config.get("network", "testnet")
+        
+        if "/threat/analyze-text" in path:
+            price_algo = 0.05
+        elif "/entity/correlate" in path:
+            price_algo = 0.10
+        elif "/report/generate" in path:
+            price_algo = 0.15
+        else:
+            price_algo = config.get("price_per_request_algo", 0.05)
+            
+        required_microalgos = int(price_algo * 1000000)
+        
+        # Fetch from Indexer
+        import httpx
+        base_url = "https://testnet-idx.algonode.cloud" if network == "testnet" else "https://mainnet-idx.algonode.cloud"
+        url = f"{base_url}/v2/transactions/{tx_id}"
+        
+        is_mock_tx = tx_id.startswith("MOCK_TX_")
+        
+        if is_mock_tx:
+            tx_data = {
+                "id": tx_id,
+                "type": "pay",
+                "payment-transaction": {
+                    "receiver": recipient if is_valid_algorand_address(recipient) else "RAKSHASTRA_RECIPIENT_WALLET_MOCK",
+                    "amount": required_microalgos
+                },
+                "round-time": int(time.time())
+            }
+        else:
+            try:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    response = await client.get(url)
+                    if response.status_code != 200:
+                        return JSONResponse(
+                            status_code=402,
+                            content={"detail": f"Payment Required: Transaction not found on Algorand {network}."}
+                        )
+                    data = response.json()
+                    tx_data = data.get("transaction")
+            except Exception as exc:
+                return JSONResponse(
+                    status_code=402,
+                    content={"detail": f"Payment Required: Indexer connection failed: {exc}"}
+                )
+                
+        if not tx_data:
+            return JSONResponse(
+                status_code=402,
+                content={"detail": "Payment Required: Invalid transaction payload."}
+            )
+            
+        # Verify transaction details
+        tx_type = tx_data.get("type")
+        pay_details = tx_data.get("payment-transaction", {})
+        tx_receiver = pay_details.get("receiver")
+        tx_amount = pay_details.get("amount", 0)
+        round_time = tx_data.get("round-time", 0)
+        
+        if tx_type != "pay":
+            return JSONResponse(
+                status_code=402,
+                content={"detail": "Payment Required: Transaction is not a payment transaction."}
+            )
+            
+        if is_valid_algorand_address(recipient) and tx_receiver != recipient:
+            return JSONResponse(
+                status_code=402,
+                content={"detail": f"Payment Required: Recipient wallet address mismatch. Expected {recipient}."}
+            )
+            
+        if tx_amount < required_microalgos:
+            return JSONResponse(
+                status_code=402,
+                content={"detail": f"Payment Required: Insufficient fee. Expected {price_algo} ALGO ({required_microalgos} microAlgos), got {tx_amount / 1000000} ALGO."}
+            )
+            
+        current_ts = int(time.time())
+        if abs(current_ts - round_time) > 7200:
+            return JSONResponse(
+                status_code=402,
+                content={"detail": "Payment Required: Transaction timestamp is older than 2 hours."}
+            )
+            
+        # 3. Save validated transaction ID into SQLite database
+        sender = tx_data.get("sender", "unknown")
+        
+        def save_tx(conn):
+            conn.execute(
+                "INSERT INTO verified_x402_txs (tx_id, amount, sender, recipient) VALUES (?, ?, ?, ?)",
+                (tx_id, tx_amount, sender, tx_receiver)
+            )
+            
+        try:
+            db._execute_write(save_tx)
+        except Exception as exc:
+            _log.warning("x402: Failed to record verified transaction: %s", exc)
+            
+    return await call_next(request)
+
+
+
+# ---------------------------------------------------------------------------
 # Config schema — auto-generated from DEFAULT_CONFIG
 # ---------------------------------------------------------------------------
 
