@@ -202,6 +202,12 @@ RUN npm install --no-save @tailwindcss/oxide-linux-x64-gnu lightningcss-linux-x6
 # write so the build steps below don't need chmod u+w dances.
 COPY --link --chmod=a+rX,go-w . .
 
+# Windows Git strips Unix execute bits — restore +x on all shell scripts
+# and s6 service run/finish scripts so they can execute inside the container.
+RUN find docker/ -name '*.sh' -exec chmod +x {} + && \
+    find /etc/s6-overlay/s6-rc.d/ -type f \( -name 'run' -o -name 'finish' -o -name 'up' -o -name 'down' \) -exec chmod +x {} + 2>/dev/null; \
+    chmod +x /etc/cont-init.d/* 2>/dev/null; true
+
 # ---------- Permissions ----------
 # Link rakshastra-agent itself (editable). Deps are already installed in the
 # cached layer above; `--no-deps` makes this a fast egg-link creation with no
