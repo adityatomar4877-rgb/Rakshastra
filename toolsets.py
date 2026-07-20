@@ -85,6 +85,9 @@ _RAKSHASTRA_CORE_TOOLS = [
     "behavioral_ingest", "behavioral_collect_system",
     "behavioral_query_anomalies", "behavioral_get_baselines",
     "behavioral_anomaly_summary", "behavioral_rebuild_baseline",
+    # Government Infrastructure Vulnerability Prioritisation (Cyber Resilience Point 4)
+    "vuln_register_asset", "vuln_prioritize_cve", "vuln_scan_asset",
+    "vuln_get_certin_advisories", "vuln_remediation_roadmap", "vuln_dashboard_summary",
 ]
 
 # Webhook events may originate from untrusted third-party content (for example,
@@ -295,6 +298,19 @@ TOOLSETS = {
             "behavioral_get_baselines",
             "behavioral_anomaly_summary",
             "behavioral_rebuild_baseline"
+        ],
+        "includes": []
+    },
+
+    "vulnerability_prioritizer": {
+        "description": "Government Infrastructure Vulnerability Prioritisation Engine — calculates Government Vulnerability Risk (GVR) scores for Indian Critical Infrastructure (NIC, Power Grid, Defense, Railways, Telecom, FinTech, UIDAI, E-Gov).",
+        "tools": [
+            "vuln_register_asset",
+            "vuln_prioritize_cve",
+            "vuln_scan_asset",
+            "vuln_get_certin_advisories",
+            "vuln_remediation_roadmap",
+            "vuln_dashboard_summary"
         ],
         "includes": []
     },

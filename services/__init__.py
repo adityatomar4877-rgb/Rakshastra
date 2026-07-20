@@ -533,3 +533,75 @@ class IncidentResponseService:
     def get_summary() -> Dict[str, Any]:
         return get_incident_response_engine().get_summary()
 
+
+_vulnerability_prioritizer_engine = None
+
+
+def get_vulnerability_prioritizer_engine():
+    global _vulnerability_prioritizer_engine
+    if _vulnerability_prioritizer_engine is None:
+        from rakshastra_core.engines.cve_prioritizer import VulnerabilityPrioritizerEngine
+        from rakshastra_constants import get_rakshastra_home
+        db_path = get_rakshastra_home() / "vulnerability_prioritizer.db"
+        _vulnerability_prioritizer_engine = VulnerabilityPrioritizerEngine(db_path)
+    return _vulnerability_prioritizer_engine
+
+
+class VulnerabilityPrioritizerService:
+    @staticmethod
+    def register_asset(
+        name: str,
+        department: str = "NIC",
+        sector_tier: str = "TIER_3_EGOV_CITIZEN",
+        network_exposure: str = "INTERNET_FACING",
+        ip_address: str = "",
+        hostname: str = "",
+        description: str = "",
+        asset_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        return get_vulnerability_prioritizer_engine().register_asset(
+            name=name,
+            department=department,
+            sector_tier=sector_tier,
+            network_exposure=network_exposure,
+            ip_address=ip_address,
+            hostname=hostname,
+            description=description,
+            asset_id=asset_id,
+        )
+
+    @staticmethod
+    def prioritize_cve(
+        cve_id: str,
+        asset_id: str,
+        cvss_base: Optional[float] = None,
+        epss_score: Optional[float] = None,
+        in_certin_kev: Optional[bool] = None,
+        recommended_action: str = "",
+    ) -> Dict[str, Any]:
+        return get_vulnerability_prioritizer_engine().prioritize_cve(
+            cve_id=cve_id,
+            asset_id=asset_id,
+            cvss_base=cvss_base,
+            epss_score=epss_score,
+            override_in_certin_kev=in_certin_kev,
+            recommended_action=recommended_action,
+        )
+
+    @staticmethod
+    def scan_asset(asset_id: str, cve_list: List[Dict[str, Any]]) -> Dict[str, Any]:
+        return get_vulnerability_prioritizer_engine().scan_and_prioritize_batch(asset_id, cve_list)
+
+    @staticmethod
+    def get_certin_advisories(query: Optional[str] = None) -> List[Dict[str, Any]]:
+        return get_vulnerability_prioritizer_engine().get_certin_advisories(query=query)
+
+    @staticmethod
+    def get_remediation_roadmap(department: Optional[str] = None) -> Dict[str, Any]:
+        return get_vulnerability_prioritizer_engine().get_remediation_roadmap(department=department)
+
+    @staticmethod
+    def get_summary() -> Dict[str, Any]:
+        return get_vulnerability_prioritizer_engine().get_summary()
+
+
