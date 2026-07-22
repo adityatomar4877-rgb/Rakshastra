@@ -95,3 +95,80 @@ class UEBAQueryRequest(BaseModel):
     severity: Optional[str] = None
     since: Optional[str] = None
     limit: int = 50
+
+# Incident Response Request Models (Point 3)
+class IRAlertTriageRequest(BaseModel):
+    alert_data: Dict[str, Any]
+    source_type: str = "anomaly"
+
+class IRContainmentRequest(BaseModel):
+    incident_id: str
+    mode: str = "simulate"
+    action_ids: Optional[List[str]] = None
+    target: str = ""
+
+class IREscalationRequest(BaseModel):
+    incident_id: str
+
+class IRInvestigateRequest(BaseModel):
+    incident_id: str
+    notes: str = ""
+
+class IRAutoRespondRequest(BaseModel):
+    alert_data: Dict[str, Any]
+    mode: str = "simulate"
+
+class IRCloseRequest(BaseModel):
+    incident_id: str
+    resolution: str = "resolved"
+
+# Vulnerability Prioritizer Request Models (Point 4)
+class VulnRegisterAssetRequest(BaseModel):
+    name: str
+    department: str = "NIC"
+    sector_tier: str = "TIER_3_EGOV_CITIZEN"
+    network_exposure: str = "INTERNET_FACING"
+    ip_address: str = ""
+    hostname: str = ""
+    description: str = ""
+    asset_id: Optional[str] = None
+
+class VulnPrioritizeCveRequest(BaseModel):
+    cve_id: str
+    asset_id: str
+    cvss_base: Optional[float] = None
+    epss_score: Optional[float] = None
+    in_certin_kev: Optional[bool] = None
+    recommended_action: str = ""
+
+class VulnScanAssetRequest(BaseModel):
+    asset_id: str
+    cve_list: List[Dict[str, Any]]
+
+# Digital Twin Request Models (Point 5)
+class DTAddNodeRequest(BaseModel):
+    name: str
+    node_type: str = "HOST"
+    department: str = "IT"
+    ip_address: str = ""
+    security_controls: Optional[List[str]] = None
+    vulnerability_count: int = 0
+    criticality_weight: float = 1.0
+    node_id: Optional[str] = None
+
+class DTAddEdgeRequest(BaseModel):
+    source_id: str
+    target_id: str
+    protocol: str = "TCP"
+    port: Optional[int] = None
+    trust_level: float = 0.5
+    edge_id: Optional[str] = None
+
+class DTSimulateAttackRequest(BaseModel):
+    scenario_key: str
+    entry_node_id: str
+
+class DTApplyDefenseRequest(BaseModel):
+    sim_id: str
+    defense_actions: List[Any]
+

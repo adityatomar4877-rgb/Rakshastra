@@ -48,6 +48,7 @@ import {
   RotateCw,
   Settings,
   Shield,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
   Star,
@@ -100,6 +101,10 @@ import MonitorPage from "@/pages/MonitorPage";
 import ChatPage from "@/pages/ChatPage";
 import DrugIntelligencePage from "@/pages/DrugIntelligencePage";
 import APTDashboardPage from "@/pages/APTDashboardPage";
+import UEBAPage from "@/pages/UEBAPage";
+import IncidentResponsePage from "@/pages/IncidentResponsePage";
+import VulnerabilityPage from "@/pages/VulnerabilityPage";
+import DigitalTwinPage from "@/pages/DigitalTwinPage";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useI18n } from "@/i18n";
@@ -142,8 +147,12 @@ const CHAT_NAV_ITEM: NavItem = {
 const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/": RootRedirect,
   "/monitor": MonitorPage,
-  "/drug-intelligence": DrugIntelligencePage,
+  "/ueba": UEBAPage,
   "/apt-dashboard": APTDashboardPage,
+  "/incident-response": IncidentResponsePage,
+  "/vulnerability": VulnerabilityPage,
+  "/digital-twin": DigitalTwinPage,
+  "/drug-intelligence": DrugIntelligencePage,
   "/sessions": LiveMonitoringPage,
   "/files": InvestigationsPage,
   "/analytics": AnalyticsPage,
@@ -179,10 +188,36 @@ const BUILTIN_NAV_REST: NavItem[] = [
     icon: Activity,
   },
   {
+    path: "/ueba",
+    label: "UEBA Anomaly",
+    icon: Activity,
+  },
+  {
+    path: "/apt-dashboard",
+    label: "APT Attribution",
+    icon: ShieldAlert,
+  },
+  {
+    path: "/incident-response",
+    label: "SOAR Response",
+    icon: Zap,
+  },
+  {
+    path: "/vulnerability",
+    label: "GVR Vulnerability",
+    icon: ShieldCheck,
+  },
+  {
+    path: "/digital-twin",
+    label: "Digital Twin",
+    icon: Network,
+  },
+  {
     path: "/drug-intelligence",
     label: "Drug Intelligence",
     icon: Shield,
   },
+
   {
     path: "/sessions",
     labelKey: "sessions",
@@ -453,7 +488,11 @@ export default function App() {
   const builtinNav = useMemo(() => {
     return [
       { path: "/monitor", label: "Dashboard", icon: BarChart3 },
-      { path: "/apt-dashboard", label: "APT Attribution", icon: ShieldAlert },
+      { path: "/ueba", label: "Behavioral Anomaly", icon: Activity },
+      { path: "/apt-dashboard", label: "APT & Threat Intel", icon: ShieldAlert },
+      { path: "/incident-response", label: "SOAR Response", icon: Zap },
+      { path: "/vulnerability", label: "GVR Vulnerability", icon: ShieldCheck },
+      { path: "/digital-twin", label: "Digital Twin Graph", icon: Network },
       { path: "/sessions", label: "Live Monitoring", icon: Activity },
       { path: "/files", label: "Investigations", icon: FolderOpen },
       { path: "/pairing", label: "Entity Search", icon: ShieldCheck },

@@ -85,6 +85,10 @@ _RAKSHASTRA_CORE_TOOLS = [
     "behavioral_ingest", "behavioral_collect_system",
     "behavioral_query_anomalies", "behavioral_get_baselines",
     "behavioral_anomaly_summary", "behavioral_rebuild_baseline",
+    # Autonomous Incident Response Orchestrator (Cyber Resilience Point 3)
+    "ir_triage_alert", "ir_execute_containment", "ir_escalate_incident",
+    "ir_investigate", "ir_auto_respond", "ir_close_incident",
+    "ir_dashboard_summary",
     # Government Infrastructure Vulnerability Prioritisation (Cyber Resilience Point 4)
     "vuln_register_asset", "vuln_prioritize_cve", "vuln_scan_asset",
     "vuln_get_certin_advisories", "vuln_remediation_roadmap", "vuln_dashboard_summary",
@@ -327,6 +331,20 @@ TOOLSETS = {
             "dt_simulate_attack",
             "dt_apply_defense_whatif",
             "dt_dashboard_summary"
+        ],
+        "includes": []
+    },
+
+    "incident_response": {
+        "description": "Autonomous Incident Response Orchestrator (SOAR / IR) — 6-phase Incident Response lifecycle (Triage, Containment, Escalation, Investigation, Recovery, Closure), containment interdictions, SOC escalation SLA, and automated response pipeline.",
+        "tools": [
+            "ir_triage_alert",
+            "ir_execute_containment",
+            "ir_escalate_incident",
+            "ir_investigate",
+            "ir_auto_respond",
+            "ir_close_incident",
+            "ir_dashboard_summary"
         ],
         "includes": []
     },

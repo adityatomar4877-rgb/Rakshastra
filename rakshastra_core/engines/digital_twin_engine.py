@@ -477,24 +477,44 @@ class DigitalTwinEngine:
 
             blocked_edges = set()
             for action in defense_actions:
-                atype = action.get("action_type", "").upper()
-                if atype == "MICROSEGMENTATION" or atype == "BLOCK_EDGE":
-                    src = action.get("source_id")
-                    tgt = action.get("target_id")
-                    for e in topology["edges"]:
-                        if (e["source_id"] == src and e["target_id"] == tgt) or (e["source_id"] == tgt and e["target_id"] == src):
-                            blocked_edges.add(e["edge_id"])
-                elif atype == "ISOLATE_NODE":
-                    nid = action.get("node_id")
-                    for e in topology["edges"]:
-                        if e["source_id"] == nid or e["target_id"] == nid:
-                            blocked_edges.add(e["edge_id"])
-                elif atype == "ENFORCE_MFA" or atype == "ADD_CONTROL":
-                    nid = action.get("node_id")
-                    if nid in nodes_dict:
-                        ctrls = set(nodes_dict[nid].get("security_controls", []))
-                        ctrls.add(action.get("control", "MFA"))
-                        nodes_dict[nid]["security_controls"] = list(ctrls)
+                if isinstance(action, str):
+                    act_key = action.lower()
+                    if "microsegmentation" in act_key:
+                        # Block high-trust inter-zone edges
+                        for e in topology["edges"]:
+                            if e.get("trust_level", 0.5) < 0.8:
+                                blocked_edges.add(e["edge_id"])
+                    elif "mfa" in act_key or "dc" in act_key:
+                        # Add MFA control to all Domain Controllers & IAM nodes
+                        for nid, n in nodes_dict.items():
+                            if n.get("node_type") in ("DOMAIN_CONTROLLER", "IAM"):
+                                ctrls = set(n.get("security_controls", []))
+                                ctrls.add("MFA")
+                                n["security_controls"] = list(ctrls)
+                    elif "isolate" in act_key:
+                        # Isolate entry node
+                        for e in topology["edges"]:
+                            if e["source_id"] == entry_node_id or e["target_id"] == entry_node_id:
+                                blocked_edges.add(e["edge_id"])
+                elif isinstance(action, dict):
+                    atype = action.get("action_type", "").upper()
+                    if atype == "MICROSEGMENTATION" or atype == "BLOCK_EDGE":
+                        src = action.get("source_id")
+                        tgt = action.get("target_id")
+                        for e in topology["edges"]:
+                            if (e["source_id"] == src and e["target_id"] == tgt) or (e["source_id"] == tgt and e["target_id"] == src):
+                                blocked_edges.add(e["edge_id"])
+                    elif atype == "ISOLATE_NODE":
+                        nid = action.get("node_id")
+                        for e in topology["edges"]:
+                            if e["source_id"] == nid or e["target_id"] == nid:
+                                blocked_edges.add(e["edge_id"])
+                    elif atype == "ENFORCE_MFA" or atype == "ADD_CONTROL":
+                        nid = action.get("node_id")
+                        if nid in nodes_dict:
+                            ctrls = set(nodes_dict[nid].get("security_controls", []))
+                            ctrls.add(action.get("control", "MFA"))
+                            nodes_dict[nid]["security_controls"] = list(ctrls)
 
             # Re-run simulation with modified virtual topology
             scenario = ATTACK_TEMPLATES.get(scenario_key.upper(), {})

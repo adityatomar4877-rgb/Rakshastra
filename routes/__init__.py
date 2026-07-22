@@ -14,7 +14,20 @@ from models import (
     SOARPlaybookExecuteRequest,
     AttackPathRequest,
     BlastRadiusRequest,
-    UEBAQueryRequest
+    UEBAQueryRequest,
+    IRAlertTriageRequest,
+    IRContainmentRequest,
+    IREscalationRequest,
+    IRInvestigateRequest,
+    IRAutoRespondRequest,
+    IRCloseRequest,
+    VulnRegisterAssetRequest,
+    VulnPrioritizeCveRequest,
+    VulnScanAssetRequest,
+    DTAddNodeRequest,
+    DTAddEdgeRequest,
+    DTSimulateAttackRequest,
+    DTApplyDefenseRequest
 )
 from controllers import (
     ThreatController,
@@ -28,7 +41,10 @@ from controllers import (
     ThreatIntelController,
     SOARController,
     AttackGraphController,
-    UEBAController
+    UEBAController,
+    IncidentResponseController,
+    VulnerabilityController,
+    DigitalTwinController
 )
 from typing import Optional
 
@@ -161,4 +177,95 @@ def ueba_apt_patterns(entity_id: str):
 @router.get("/ueba/risk-timeline/{entity_id}")
 def ueba_risk_timeline(entity_id: str):
     return UEBAController.get_risk_timeline(entity_id)
+
+# ── Incident Response Endpoints (Point 3) ───────────────────────────────
+
+@router.post("/ir/triage")
+def ir_triage(request: IRAlertTriageRequest):
+    return IncidentResponseController.triage(request)
+
+@router.post("/ir/containment")
+def ir_containment(request: IRContainmentRequest):
+    return IncidentResponseController.containment(request)
+
+@router.post("/ir/escalate")
+def ir_escalate(request: IREscalationRequest):
+    return IncidentResponseController.escalate(request)
+
+@router.post("/ir/investigate")
+def ir_investigate(request: IRInvestigateRequest):
+    return IncidentResponseController.investigate(request)
+
+@router.post("/ir/auto-respond")
+def ir_auto_respond(request: IRAutoRespondRequest):
+    return IncidentResponseController.auto_respond(request)
+
+@router.post("/ir/close")
+def ir_close(request: IRCloseRequest):
+    return IncidentResponseController.close(request)
+
+@router.get("/ir/incidents")
+def ir_incidents(phase: Optional[str] = None, limit: int = 50):
+    return IncidentResponseController.get_incidents(phase, limit)
+
+@router.get("/ir/incident/{incident_id}")
+def ir_incident(incident_id: str):
+    return IncidentResponseController.get_incident(incident_id)
+
+@router.get("/ir/summary")
+def ir_summary():
+    return IncidentResponseController.get_summary()
+
+# ── Vulnerability Prioritizer Endpoints (Point 4) ───────────────────────
+
+@router.post("/vulnerability/register-asset")
+def vuln_register_asset(request: VulnRegisterAssetRequest):
+    return VulnerabilityController.register_asset(request)
+
+@router.post("/vulnerability/prioritize-cve")
+def vuln_prioritize_cve(request: VulnPrioritizeCveRequest):
+    return VulnerabilityController.prioritize_cve(request)
+
+@router.post("/vulnerability/scan-asset")
+def vuln_scan_asset(request: VulnScanAssetRequest):
+    return VulnerabilityController.scan_asset(request)
+
+@router.get("/vulnerability/certin-advisories")
+def vuln_certin_advisories(query: Optional[str] = None):
+    return VulnerabilityController.get_certin_advisories(query)
+
+@router.get("/vulnerability/remediation-roadmap")
+def vuln_remediation_roadmap(department: Optional[str] = None):
+    return VulnerabilityController.get_remediation_roadmap(department)
+
+@router.get("/vulnerability/summary")
+def vuln_summary():
+    return VulnerabilityController.get_summary()
+
+# ── Digital Twin Endpoints (Point 5) ────────────────────────────────────
+
+@router.post("/digital-twin/add-node")
+def dt_add_node(request: DTAddNodeRequest):
+    return DigitalTwinController.add_node(request)
+
+@router.post("/digital-twin/add-edge")
+def dt_add_edge(request: DTAddEdgeRequest):
+    return DigitalTwinController.add_edge(request)
+
+@router.get("/digital-twin/topology")
+def dt_topology():
+    return DigitalTwinController.get_topology()
+
+@router.post("/digital-twin/simulate-attack")
+def dt_simulate_attack(request: DTSimulateAttackRequest):
+    return DigitalTwinController.simulate_attack(request)
+
+@router.post("/digital-twin/apply-defense-whatif")
+def dt_apply_defense_whatif(request: DTApplyDefenseRequest):
+    return DigitalTwinController.apply_defense_whatif(request)
+
+@router.get("/digital-twin/summary")
+def dt_summary():
+    return DigitalTwinController.get_summary()
+
 
