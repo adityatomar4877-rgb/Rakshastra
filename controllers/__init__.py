@@ -14,7 +14,20 @@ from models import (
     SOARPlaybookExecuteRequest,
     AttackPathRequest,
     BlastRadiusRequest,
-    UEBAQueryRequest
+    UEBAQueryRequest,
+    IRAlertTriageRequest,
+    IRContainmentRequest,
+    IREscalationRequest,
+    IRInvestigateRequest,
+    IRAutoRespondRequest,
+    IRCloseRequest,
+    VulnRegisterAssetRequest,
+    VulnPrioritizeCveRequest,
+    VulnScanAssetRequest,
+    DTAddNodeRequest,
+    DTAddEdgeRequest,
+    DTSimulateAttackRequest,
+    DTApplyDefenseRequest
 )
 from services import (
     ThreatService,
@@ -28,7 +41,10 @@ from services import (
     ThreatIntelService,
     SOARService,
     AttackGraphService,
-    UEBAService
+    UEBAService,
+    IncidentResponseService,
+    VulnerabilityPrioritizerService,
+    DigitalTwinService
 )
 from typing import Optional, Dict, Any, List
 
@@ -229,4 +245,127 @@ class UEBAController:
     @staticmethod
     def get_risk_timeline(entity_id: str):
         return UEBAService.get_risk_timeline(entity_id)
+
+
+class IncidentResponseController:
+    @staticmethod
+    def triage(request: IRAlertTriageRequest):
+        return IncidentResponseService.triage_alert(request.alert_data, source_type=request.source_type)
+
+    @staticmethod
+    def containment(request: IRContainmentRequest):
+        return IncidentResponseService.execute_containment(request.incident_id, mode=request.mode, action_ids=request.action_ids, target=request.target)
+
+    @staticmethod
+    def escalate(request: IREscalationRequest):
+        return IncidentResponseService.escalate_incident(request.incident_id)
+
+    @staticmethod
+    def investigate(request: IRInvestigateRequest):
+        return IncidentResponseService.investigate(request.incident_id, notes=request.notes)
+
+    @staticmethod
+    def auto_respond(request: IRAutoRespondRequest):
+        return IncidentResponseService.auto_respond(request.alert_data, mode=request.mode)
+
+    @staticmethod
+    def close(request: IRCloseRequest):
+        return IncidentResponseService.close_incident(request.incident_id, resolution=request.resolution)
+
+    @staticmethod
+    def get_incidents(phase: Optional[str] = None, limit: int = 50):
+        return IncidentResponseService.get_incidents(phase, limit)
+
+    @staticmethod
+    def get_incident(incident_id: str):
+        return IncidentResponseService.get_incident(incident_id)
+
+    @staticmethod
+    def get_summary():
+        return IncidentResponseService.get_summary()
+
+
+class VulnerabilityController:
+    @staticmethod
+    def register_asset(request: VulnRegisterAssetRequest):
+        return VulnerabilityPrioritizerService.register_asset(
+            name=request.name,
+            department=request.department,
+            sector_tier=request.sector_tier,
+            network_exposure=request.network_exposure,
+            ip_address=request.ip_address,
+            hostname=request.hostname,
+            description=request.description,
+            asset_id=request.asset_id
+        )
+
+    @staticmethod
+    def prioritize_cve(request: VulnPrioritizeCveRequest):
+        return VulnerabilityPrioritizerService.prioritize_cve(
+            cve_id=request.cve_id,
+            asset_id=request.asset_id,
+            cvss_base=request.cvss_base,
+            epss_score=request.epss_score,
+            in_certin_kev=request.in_certin_kev,
+            recommended_action=request.recommended_action
+        )
+
+    @staticmethod
+    def scan_asset(request: VulnScanAssetRequest):
+        return VulnerabilityPrioritizerService.scan_asset(request.asset_id, request.cve_list)
+
+    @staticmethod
+    def get_certin_advisories(query: Optional[str] = None):
+        return VulnerabilityPrioritizerService.get_certin_advisories(query)
+
+    @staticmethod
+    def get_remediation_roadmap(department: Optional[str] = None):
+        return VulnerabilityPrioritizerService.get_remediation_roadmap(department)
+
+    @staticmethod
+    def get_summary():
+        return VulnerabilityPrioritizerService.get_summary()
+
+
+class DigitalTwinController:
+    @staticmethod
+    def add_node(request: DTAddNodeRequest):
+        return DigitalTwinService.add_node(
+            name=request.name,
+            node_type=request.node_type,
+            department=request.department,
+            ip_address=request.ip_address,
+            security_controls=request.security_controls,
+            vulnerability_count=request.vulnerability_count,
+            criticality_weight=request.criticality_weight,
+            node_id=request.node_id
+        )
+
+    @staticmethod
+    def add_edge(request: DTAddEdgeRequest):
+        return DigitalTwinService.add_edge(
+            source_id=request.source_id,
+            target_id=request.target_id,
+            protocol=request.protocol,
+            port=request.port,
+            trust_level=request.trust_level,
+            edge_id=request.edge_id
+        )
+
+    @staticmethod
+    def get_topology():
+        return DigitalTwinService.get_topology()
+
+    @staticmethod
+    def simulate_attack(request: DTSimulateAttackRequest):
+        return DigitalTwinService.simulate_attack(request.scenario_key, request.entry_node_id)
+
+    @staticmethod
+    def apply_defense_whatif(request: DTApplyDefenseRequest):
+        return DigitalTwinService.apply_defense_whatif(request.sim_id, request.defense_actions)
+
+    @staticmethod
+    def get_summary():
+        return DigitalTwinService.get_summary()
+
 

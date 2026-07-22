@@ -919,12 +919,20 @@ export const api = {
     }),
   aptGetTechniques: (tacticId?: string) =>
     fetchJSON<any[]>(`/api/v1/apt/techniques${tacticId ? `?tactic_id=${encodeURIComponent(tacticId)}` : ""}`),
+  aptTechniques: (tactic_id?: string) =>
+    fetchJSON<any[]>(`/api/v1/apt/techniques${tactic_id ? `?tactic_id=${encodeURIComponent(tactic_id)}` : ""}`),
   aptGetGroups: () =>
+    fetchJSON<any[]>("/api/v1/apt/groups"),
+  aptGroups: () =>
     fetchJSON<any[]>("/api/v1/apt/groups"),
   aptGetTactics: () =>
     fetchJSON<any[]>("/api/v1/apt/tactics"),
+  aptTactics: () =>
+    fetchJSON<any[]>("/api/v1/apt/tactics"),
   aptGetGroupProfile: (groupId: string) =>
     fetchJSON<any>(`/api/v1/apt/group/${encodeURIComponent(groupId)}`),
+  aptGroupProfile: (group_id: string) =>
+    fetchJSON<any>(`/api/v1/apt/group/${encodeURIComponent(group_id)}`),
 
   // Threat Intel RAG
   threatIntelSearch: (body: { query: string; search_type?: string; top_k?: number }) =>
@@ -949,12 +957,20 @@ export const api = {
     }),
   soarGetPlaybooks: () =>
     fetchJSON<any[]>("/api/v1/soar/playbooks"),
+  soarPlaybooks: () =>
+    fetchJSON<any[]>("/api/v1/soar/playbooks"),
   soarGetIncidents: (status?: string, limit = 50) =>
+    fetchJSON<any[]>(`/api/v1/soar/incidents?limit=${limit}${status ? `&status=${encodeURIComponent(status)}` : ""}`),
+  soarIncidents: (status?: string, limit = 50) =>
     fetchJSON<any[]>(`/api/v1/soar/incidents?limit=${limit}${status ? `&status=${encodeURIComponent(status)}` : ""}`),
   soarGetIncident: (incidentId: string) =>
     fetchJSON<any>(`/api/v1/soar/incident/${encodeURIComponent(incidentId)}`),
+  soarIncident: (id: string) =>
+    fetchJSON<any>(`/api/v1/soar/incident/${encodeURIComponent(id)}`),
   soarGetIncidentActions: (incidentId: string) =>
     fetchJSON<any[]>(`/api/v1/soar/incident/${encodeURIComponent(incidentId)}/actions`),
+  soarIncidentActions: (id: string) =>
+    fetchJSON<any[]>(`/api/v1/soar/incident/${encodeURIComponent(id)}/actions`),
 
   // Attack Graph
   attackGraphPaths: (body: { entry_point_id: string; target_id: string; max_depth?: number }) =>
@@ -981,8 +997,12 @@ export const api = {
     }),
   uebaGetAptPatterns: (entityId: string) =>
     fetchJSON<any>(`/api/v1/ueba/apt-patterns/${encodeURIComponent(entityId)}`),
+  uebaAptPatterns: (entity_id: string) =>
+    fetchJSON<any>(`/api/v1/ueba/apt-patterns/${encodeURIComponent(entity_id)}`),
   uebaGetRiskTimeline: (entityId: string) =>
     fetchJSON<any[]>(`/api/v1/ueba/risk-timeline/${encodeURIComponent(entityId)}`),
+  uebaRiskTimeline: (entity_id: string) =>
+    fetchJSON<any[]>(`/api/v1/ueba/risk-timeline/${encodeURIComponent(entity_id)}`),
 
 
 
@@ -1324,6 +1344,173 @@ export const api = {
     fetchJSON<SkillHubScan>(
       `/api/skills/hub/scan?identifier=${encodeURIComponent(identifier)}`,
     ),
+
+  // ── Cyber Resilience Engine Endpoints (Points 3 - 5) ───────────────
+
+  // Point 3: Incident Response Orchestrator
+  irTriage: (body: { alert_data: any; source_type?: string }) =>
+    fetchJSON<any>("/api/v1/ir/triage", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  irContainment: (body: { incident_id: string; mode?: string; action_ids?: string[]; target?: string }) =>
+    fetchJSON<any>("/api/v1/ir/containment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  irEscalate: (body: { incident_id: string }) =>
+    fetchJSON<any>("/api/v1/ir/escalate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  irInvestigate: (body: { incident_id: string; notes?: string }) =>
+    fetchJSON<any>("/api/v1/ir/investigate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  irAutoRespond: (body: { alert_data: any; mode?: string }) =>
+    fetchJSON<any>("/api/v1/ir/auto-respond", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  irClose: (body: { incident_id: string; resolution?: string }) =>
+    fetchJSON<any>("/api/v1/ir/close", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  irIncidents: (phase?: string, limit = 50) =>
+    fetchJSON<any[]>(`/api/v1/ir/incidents?limit=${limit}${phase ? `&phase=${encodeURIComponent(phase)}` : ""}`),
+  irIncident: (id: string) => fetchJSON<any>(`/api/v1/ir/incident/${encodeURIComponent(id)}`),
+  irSummary: () => fetchJSON<any>("/api/v1/ir/summary"),
+
+  // Point 4: Vulnerability Prioritization
+  vulnRegisterAsset: (body: { name: string; department?: string; sector_tier?: string; network_exposure?: string; ip_address?: string; hostname?: string; description?: string; asset_id?: string }) =>
+    fetchJSON<any>("/api/v1/vulnerability/register-asset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  vulnPrioritizeCve: (body: { cve_id: string; asset_id: string; cvss_base?: number; epss_score?: number; in_certin_kev?: boolean; recommended_action?: string }) =>
+    fetchJSON<any>("/api/v1/vulnerability/prioritize-cve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  vulnScanAsset: (body: { asset_id: string; cve_list: any[] }) =>
+    fetchJSON<any>("/api/v1/vulnerability/scan-asset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  vulnCertinAdvisories: (query?: string) =>
+    fetchJSON<any[]>(`/api/v1/vulnerability/certin-advisories${query ? `?query=${encodeURIComponent(query)}` : ""}`),
+  vulnRemediationRoadmap: (department?: string) =>
+    fetchJSON<any>(`/api/v1/vulnerability/remediation-roadmap${department ? `?department=${encodeURIComponent(department)}` : ""}`),
+  vulnSummary: () => fetchJSON<any>("/api/v1/vulnerability/summary"),
+
+  // Point 5: Digital Twin
+  dtAddNode: (body: { name: string; node_type?: string; department?: string; ip_address?: string; security_controls?: string[]; vulnerability_count?: number; criticality_weight?: number; node_id?: string }) =>
+    fetchJSON<any>("/api/v1/digital-twin/add-node", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  dtAddEdge: (body: { source_id: string; target_id: string; protocol?: string; port?: number; trust_level?: number; edge_id?: string }) =>
+    fetchJSON<any>("/api/v1/digital-twin/add-edge", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  dtTopology: () => fetchJSON<any>("/api/v1/digital-twin/topology"),
+  dtSimulateAttack: (body: { scenario_key: string; entry_node_id: string }) =>
+    fetchJSON<any>("/api/v1/digital-twin/simulate-attack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  dtApplyDefenseWhatif: (body: { sim_id: string; defense_actions: any[] }) =>
+    fetchJSON<any>("/api/v1/digital-twin/apply-defense-whatif", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  dtSummary: () => fetchJSON<any>("/api/v1/digital-twin/summary"),
+
+  // Point 1: UEBA / Behavioural Anomaly Detection
+  uebaAnomalies: (params?: { entity_id?: string; category?: string; severity?: string; since?: string; limit?: number }) =>
+    fetchJSON<any[]>("/api/v1/ueba/anomalies", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params || {}),
+    }),
+  uebaAptPatterns: (entityId: string) =>
+    fetchJSON<any>(`/api/v1/ueba/apt-patterns/${encodeURIComponent(entityId)}`),
+  uebaRiskTimeline: (entityId: string) =>
+    fetchJSON<any[]>(`/api/v1/ueba/risk-timeline/${encodeURIComponent(entityId)}`),
+
+  // Point 2: APT Attribution, Threat Intel RAG, SOAR & Attack Graph
+  aptAttribute: (body: { observed_ttps: string[]; observed_iocs?: string[]; target_sector?: string; target_country?: string }) =>
+    fetchJSON<any>("/api/v1/apt/attribute", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  aptPredict: (body: { observed_ttps: string[]; attributed_group_id?: string; top_k?: number }) =>
+    fetchJSON<any>("/api/v1/apt/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  aptFullAnalysis: (body: { observed_ttps: string[]; observed_iocs?: string[]; target_sector?: string; target_country?: string; org_assets?: any[]; create_incident?: boolean }) =>
+    fetchJSON<any>("/api/v1/apt/full-analysis", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  threatIntelSearch: (body: { query: string; search_type?: string; top_k?: number }) =>
+    fetchJSON<any[]>("/api/v1/threat-intel/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  soarCreateIncident: (body: { alert_data?: any; severity?: string; attribution_result?: any; title?: string; mode?: string }) =>
+    fetchJSON<any>("/api/v1/soar/create-incident", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  soarExecutePlaybook: (body: { incident_id: string; mode?: string }) =>
+    fetchJSON<any>("/api/v1/soar/execute-playbook", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  soarPlaybooks: () => fetchJSON<any[]>("/api/v1/soar/playbooks"),
+  soarIncidents: (status?: string, limit = 50) =>
+    fetchJSON<any[]>(`/api/v1/soar/incidents?limit=${limit}${status ? `&status=${encodeURIComponent(status)}` : ""}`),
+  soarIncident: (incidentId: string) =>
+    fetchJSON<any>(`/api/v1/soar/incident/${encodeURIComponent(incidentId)}`),
+  soarIncidentActions: (incidentId: string) =>
+    fetchJSON<any[]>(`/api/v1/soar/incident/${encodeURIComponent(incidentId)}/actions`),
+  attackGraphPaths: (body: { entry_point_id: string; target_id: string; max_depth?: number }) =>
+    fetchJSON<any>("/api/v1/attack-graph/paths", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  attackGraphBlastRadius: (body: { compromised_asset_id: string }) =>
+    fetchJSON<any>("/api/v1/attack-graph/blast-radius", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  attackGraphChokepoints: () => fetchJSON<any[]>("/api/v1/attack-graph/chokepoints"),
 };
 
 /** Identity payload returned by ``GET /api/auth/me`` (Phase 7).
